@@ -87,7 +87,7 @@ body.kimberley-is-locked {
     top: 50%;
     transform: translateY(-50%);
     z-index: 4;
-    width: 30rem;
+    width: 34rem;
     width: min(34rem, 40vw);
     pointer-events: none;
     transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
