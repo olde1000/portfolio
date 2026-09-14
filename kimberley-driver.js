@@ -5,6 +5,7 @@
     var launched = false, engaged = false, scrollAz = 0;
 
     window.kimberleyScrollAz = 0;
+    window.kimberleyScrollP = 0;
 
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
@@ -69,6 +70,7 @@
             if (span > 4) {
                 var sp = Math.min(1, Math.max(0, window.scrollY / span));
                 scrollAz += (sp * Math.PI * 2 * ORBIT_TURNS - scrollAz) * Math.min(1, dt * 4.0);
+                window.kimberleyScrollP = sp;
                 window.kimberleyScrollAz = scrollAz;
                 if (sp >= 0.999) {
                     launched = true;

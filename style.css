@@ -91,6 +91,77 @@ body.kimberley-is-locked {
     letter-spacing: -0.01em;
 }
 
+.kimberley-intro {
+    position: fixed;
+    left: clamp(24px, 6vw, 96px);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 4;
+    max-width: min(30rem, 36vw);
+    pointer-events: none;
+    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kimberley-intro-gone {
+    opacity: 0;
+}
+
+.kimberley-intro p {
+    margin: 0 0 0.9em;
+    font-size: clamp(0.875rem, 1.05vw, 1rem);
+    font-weight: 350;
+    line-height: 1.62;
+    color: var(--kimberley-bone);
+    text-wrap: pretty;
+}
+
+.kimberley-intro-lead {
+    font-weight: 500;
+    letter-spacing: -0.01em;
+}
+
+.kimberley-intro-cue {
+    margin-top: 1.6em;
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    opacity: 0.6;
+}
+
+.kimberley-intro-caret::after {
+    content: "";
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    margin-left: 0.14em;
+    vertical-align: -0.14em;
+    background: var(--kimberley-bone);
+    animation: kimberley-caret 1s steps(1, end) infinite;
+}
+
+@keyframes kimberley-caret {
+    0%, 50% { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+}
+
+@media (max-width: 900px) {
+    .kimberley-intro {
+        left: clamp(18px, 5vw, 32px);
+        right: clamp(18px, 5vw, 32px);
+        top: auto;
+        bottom: clamp(28px, 8vh, 72px);
+        transform: none;
+        max-width: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kimberley-intro-caret::after {
+        animation: none;
+        opacity: 1;
+    }
+}
+
 .kimberley-sr-only {
     position: absolute;
     width: 1px;
