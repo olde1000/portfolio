@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const TRIGGER = 0.12, SCROLL_SPAN = 0.72;
-const DIST = 72, LATERAL = 58, RISE = 9, DROP = -4;
-const DURATION = 6.5, SCALE = 1.05;
-const FADE_IN = 0.10, FADE_OUT = 0.86;
-const SPIN = 0.24;
+const TRIGGER = 0.50;
+const DIST = 72, LATERAL = 52, RISE = 7, DROP = -3;
+const DURATION = 12.0, SCALE = 2.2;
+const FADE_IN = 0.08, FADE_OUT = 0.90;
+const SPIN = 0.24, AIM_EASE = 0.7, END_FADE = 1.1;
 
 const scene = window.kimberleyScene;
 const camera = window.kimberleyCamera;
@@ -67,12 +67,17 @@ if (scene && camera) {
   const forward = new THREE.Vector3();
   const heading = new THREE.Vector3();
   const Y_UP = new THREE.Vector3(0, 1, 0);
+  const aimQuat = new THREE.Quaternion();
+  const camQuat = new THREE.Quaternion();
 
-  const aim = () => {
+  const aim = (dt) => {
     camera.updateMatrixWorld();
     camera.getWorldPosition(origin);
-    camera.matrixWorld.extractBasis(right, up, forward);
-    forward.negate();
+    camera.getWorldQuaternion(camQuat);
+    aimQuat.slerp(camQuat, Math.min(1, dt * AIM_EASE));
+    right.set(1, 0, 0).applyQuaternion(aimQuat);
+    up.set(0, 1, 0).applyQuaternion(aimQuat);
+    forward.set(0, 0, -1).applyQuaternion(aimQuat);
   };
 
   const at = (p, out) => out.copy(origin)
@@ -83,9 +88,11 @@ if (scene && camera) {
   const here = new THREE.Vector3();
   const ahead = new THREE.Vector3();
 
-  let flight = -1, done = false, last = null;
+  let flight = -1, done = false, last = null, leaving = 0;
 
   const launch = () => {
+    camera.updateMatrixWorld();
+    camera.getWorldQuaternion(aimQuat);
     flight = 0;
     rig.visible = true;
   };
@@ -104,15 +111,16 @@ if (scene && camera) {
     }
 
     flight += dt;
-    const swept = ((window.kimberleyScrollP || 0) - TRIGGER) / SCROLL_SPAN;
-    const p = Math.max(flight / DURATION, swept);
-    if (p >= 1 || (window.kimberleyEnd || 0) > 0.001) {
+    if ((window.kimberleyEnd || 0) > 0.001) leaving += dt;
+    const p = Math.min(1, flight / DURATION);
+    const bow = 1 - Math.min(1, leaving / END_FADE);
+    if (bow <= 0 || p >= 1) {
       rig.visible = false;
       done = true;
       return;
     }
 
-    aim();
+    aim(dt);
     at(p, here);
     at(Math.min(1, p + 0.02), ahead);
     rig.position.copy(here);
@@ -120,7 +128,7 @@ if (scene && camera) {
     rig.quaternion.setFromUnitVectors(Y_UP, heading);
     body.rotation.y += dt * SPIN;
 
-    const fade = Math.min(1, p / FADE_IN) * Math.min(1, (1 - p) / (1 - FADE_OUT));
+    const fade = Math.min(1, p / FADE_IN) * Math.min(1, (1 - p) / (1 - FADE_OUT)) * bow;
     for (const m of parts) m.opacity = fade;
     glow.position.copy(heading).multiplyScalar(-0.9);
     glowMat.opacity = fade * (0.55 + 0.2 * Math.sin(flight * 11));
