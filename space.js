@@ -8,8 +8,11 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 const CONFIG = {
     backdrop: 'assets/video/space-backdrop.mp4',
     model: 'assets/models/astronaut.glb',
+    earth: 'assets/models/earth.glb',
     modelScale: 1.0,
-    scrollVh: 540,
+    scrollVh: 760,
+    approach: [0.52, 0.76],
+    impact: [0.76, 1.00],
     beats: [],
     views: [
         { p: 0.00, az: 0.00, el: 0.05, dist: 5.0 },
@@ -75,15 +78,24 @@ const glCanvas = document.getElementById('spaceGL');
 const scrollEl = document.getElementById('spaceScroll');
 const spacerEl = document.getElementById('spaceSpacer');
 const captionsEl = document.getElementById('spaceCaptions');
+const flashEl = document.getElementById('spaceFlash');
+const wordmarkEl = document.getElementById('spaceWordmark');
 
 const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const lerp = (a, b, t) => a + (b - a) * t;
+const smoothstep = (a, b, x) => { const t = clamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+const ease = (t) => t * t * (3 - 2 * t);
 const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const coarse = () => window.matchMedia('(pointer: coarse)').matches;
 const getLang = () => (document.documentElement.lang === 'en' ? 'en' : 'da');
 
 let renderer, scene, camera, clock, composer, bloomPass;
 let backdropVideo, backdropTexture, stars, astronaut = null, astronautHolder, rig = null;
+let earth = null, earthPivot, earthMats = [];
+let asteroid, shardGroup, shockRing;
+const shards = [];
+
+const IMPACT = new THREE.Vector3(2.6, -0.35, -2.0);
 let rafId = 0;
 let entered = false, enterAmt = 0;
 let progress = 0, progressEased = 0;
@@ -191,6 +203,81 @@ const buildScene = () => {
 
         rig = { shoulder, elbow, leftArm, leftLeg, rightLeg, head };
     });
+
+    earthPivot = new THREE.Group();
+    scene.add(earthPivot);
+    new GLTFLoader().load(CONFIG.earth, (gltf) => {
+        const obj = gltf.scene;
+        const box = new THREE.Box3().setFromObject(obj);
+        const size = new THREE.Vector3();
+        const centre = new THREE.Vector3();
+        box.getSize(size);
+        box.getCenter(centre);
+        obj.position.sub(centre);
+        obj.scale.setScalar(1.0 / (Math.max(size.x, size.y, size.z) || 1));
+        earthPivot.add(obj);
+        earth = obj;
+        obj.traverse((n) => {
+            if (!n.isMesh || !n.material) return;
+            const list = Array.isArray(n.material) ? n.material : [n.material];
+            list.forEach((m) => earthMats.push(m));
+        });
+    });
+
+    buildImpact();
+};
+
+const buildImpact = () => {
+    const geo = new THREE.IcosahedronGeometry(1.0, 1);
+    const pos = geo.attributes.position;
+    const v = new THREE.Vector3();
+    for (let i = 0; i < pos.count; i++) {
+        v.fromBufferAttribute(pos, i).multiplyScalar(0.72 + Math.random() * 0.5);
+        pos.setXYZ(i, v.x, v.y, v.z);
+    }
+    geo.computeVertexNormals();
+    asteroid = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
+        color: 0x7a4a34, emissive: 0x2a0d05, emissiveIntensity: 0.5,
+        roughness: 1.0, metalness: 0.0, flatShading: true,
+    }));
+    asteroid.visible = false;
+    scene.add(asteroid);
+
+    shardGroup = new THREE.Group();
+    shardGroup.visible = false;
+    scene.add(shardGroup);
+    const shardGeo = new THREE.TetrahedronGeometry(0.12);
+    for (let i = 0; i < 40; i++) {
+        const mesh = new THREE.Mesh(shardGeo, new THREE.MeshStandardMaterial({
+            color: 0x2f6ea6, emissive: 0xff2a08, emissiveIntensity: 0,
+            roughness: 0.7, metalness: 0.1, transparent: true, opacity: 1,
+        }));
+        mesh.visible = false;
+        shardGroup.add(mesh);
+        const th = Math.random() * Math.PI * 2;
+        const ph = Math.acos(2 * Math.random() - 1);
+        shards.push({
+            mesh,
+            dx: Math.sin(ph) * Math.cos(th),
+            dy: Math.sin(ph) * Math.sin(th) * 0.8,
+            dz: Math.abs(Math.cos(ph)) * 0.7 + 0.5,
+            sp: 1.6 + Math.random() * 2.6,
+            sz: Math.random() * 0.7,
+            rx: Math.random() * 2 - 1,
+            ry: Math.random() * 2 - 1,
+            rz: Math.random() * 2 - 1,
+        });
+    }
+
+    shockRing = new THREE.Mesh(
+        new THREE.RingGeometry(0.55, 0.72, 56),
+        new THREE.MeshBasicMaterial({
+            color: 0xff6a2a, transparent: true, opacity: 0,
+            side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false,
+        })
+    );
+    shockRing.visible = false;
+    scene.add(shockRing);
 };
 
 const buildCaptions = () => {
@@ -305,6 +392,8 @@ const draw = () => {
     progress = clamp01(range > 0 ? scrollEl.scrollTop / range : 0);
     progressEased += (progress - progressEased) * (reduced() ? 1 : 0.08);
     const p = progressEased;
+    const approach = smoothstep(CONFIG.approach[0], CONFIG.approach[1], p);
+    const outro = clamp01((p - CONFIG.impact[0]) / (CONFIG.impact[1] - CONFIG.impact[0]));
 
     mouse.x += (mouseTarget.x - mouse.x) * 0.06;
     mouse.y += (mouseTarget.y - mouse.y) * 0.06;
@@ -370,7 +459,7 @@ const draw = () => {
     const view = viewAt(p);
     const az = Math.max(-1.4, Math.min(1.4, view.az + manualAzE + mx * 0.15));
     const el = Math.max(-0.9, Math.min(0.9, view.el + manualElE + my * 0.12));
-    const dist = view.dist * lerp(2.5, 1.0, emerge);
+    const dist = view.dist * lerp(2.5, 1.0, emerge) * (1 + approach * 0.22 + outro * 0.30);
     const cx = Math.sin(az) * Math.cos(el) * dist;
     const cy = Math.sin(el) * dist + 0.12 + (1 - emerge) * 0.8;
     const cz = Math.cos(az) * Math.cos(el) * dist;
@@ -378,6 +467,76 @@ const draw = () => {
     camera.position.y += (cy - camera.position.y) * 0.07;
     camera.position.z += (cz - camera.position.z) * 0.07;
     camera.lookAt(0, 0.12, 0);
+
+    if (earth) {
+        earthPivot.position.set(
+            IMPACT.x + (1 - approach) * 4.4,
+            IMPACT.y,
+            IMPACT.z - (1 - approach) * 3.0
+        );
+        earthPivot.scale.setScalar(approach * 1.7);
+        earthPivot.rotation.y += dt * 0.05;
+        const heat = smoothstep(0.12, 0.30, outro);
+        for (let i = 0; i < earthMats.length; i++) {
+            const m = earthMats[i];
+            if (!m.emissive) continue;
+            m.emissive.setRGB(heat, heat * 0.12, 0.0);
+            m.emissiveIntensity = heat * 1.8;
+        }
+        earth.visible = outro < 0.30;
+    }
+
+    if (outro > 0.001) {
+        const appr = ease(clamp01(outro / 0.30));
+        asteroid.visible = outro < 0.32;
+        asteroid.position.set(
+            lerp(9.0, IMPACT.x, appr),
+            lerp(6.0, IMPACT.y, appr),
+            lerp(-7.0, IMPACT.z, appr)
+        );
+        asteroid.scale.setScalar(0.16 + 0.20 * appr);
+        asteroid.rotation.x += dt * 3.0;
+        asteroid.rotation.y += dt * 2.2;
+
+        const burst = clamp01((outro - 0.30) / 0.40);
+        const be = 1 - (1 - burst) * (1 - burst);
+        shardGroup.visible = burst > 0;
+        for (let i = 0; i < shards.length; i++) {
+            const s = shards[i];
+            s.mesh.visible = burst > 0;
+            s.mesh.position.set(
+                IMPACT.x + s.dx * be * s.sp,
+                IMPACT.y + s.dy * be * s.sp,
+                IMPACT.z + s.dz * be * s.sp
+            );
+            s.mesh.rotation.set(s.rx * be * 6, s.ry * be * 6, s.rz * be * 6);
+            s.mesh.scale.setScalar(Math.max(0.01, (0.6 + s.sz) * (1 - burst * 0.5)));
+            const glow = 1 - burst;
+            if (s.mesh.material.emissive) {
+                s.mesh.material.emissive.setRGB(glow, glow * 0.18, glow * 0.05);
+                s.mesh.material.emissiveIntensity = 0.4 + glow * 2.2;
+            }
+            s.mesh.material.opacity = 1 - clamp01((burst - 0.7) / 0.3);
+        }
+
+        const ringP = clamp01((outro - 0.30) / 0.32);
+        shockRing.visible = ringP > 0 && ringP < 1;
+        if (shockRing.visible) {
+            shockRing.position.copy(IMPACT);
+            shockRing.lookAt(camera.position);
+            shockRing.scale.setScalar(0.3 + ringP * 9.0);
+            shockRing.material.opacity = (1 - ringP) * 0.85;
+        }
+    } else {
+        asteroid.visible = false;
+        shardGroup.visible = false;
+        shockRing.visible = false;
+    }
+
+    flashEl.style.opacity = smoothstep(0.28, 0.40, outro).toFixed(3);
+    const mark = smoothstep(0.46, 0.66, outro);
+    wordmarkEl.style.opacity = mark.toFixed(3);
+    wordmarkEl.style.transform = 'scale(' + (1.05 - mark * 0.05).toFixed(4) + ')';
 
     if (backdropTexture) backdropTexture.needsUpdate = true;
 
