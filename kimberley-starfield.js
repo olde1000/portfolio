@@ -1,103 +1,100 @@
-(function () {
-    var cv = document.getElementById('kimberleyStarfield');
-    if (!cv) return;
+import * as THREE from 'three';
 
-    var ctx = cv.getContext('2d');
-    var calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+const SHELLS = [
+  { n: 260,  near: 20, far: 40, size: 0.120, opacity: 0.95, spin: 0.0042 },
+  { n: 620,  near: 40, far: 66, size: 0.140, opacity: 0.72, spin: 0.0024 },
+  { n: 1500, near: 66, far: 95, size: 0.150, opacity: 0.52, spin: 0.0011 }
+];
+const COOL = new THREE.Color(0xcfe0ff);
+const WARM = new THREE.Color(0xffd6aa);
+const WARM_ODDS = 0.17;
 
-    var COUNT = 620, MARGIN = 60, FOCAL = 620;
-    var Z_NEAR = 26, Z_FAR = 700;
-    var TRAVEL = 2.0, DRIFT = 0.045;
-    var MOUSE_SHIFT = 3.0, MOUSE_EASE = 3.2;
-    var SIZE_K = 62, SIZE_MIN = 0.4, SIZE_MAX = 2.3;
-    var ALPHA_K = 34, ALPHA_MIN = 0.14, ALPHA_MAX = 0.95;
-    var WARM = 0.16;
-
-    var W = 0, H = 0, DPR = 1, FW = 0, FH = 0;
-    var stars = [];
-    var t0 = null, last = null;
-    var mx = 0, my = 0, shown = -1;
-
-    var build = function () {
-        FW = W + MARGIN * 2;
-        FH = H + MARGIN * 2;
-        stars = [];
-        for (var i = 0; i < COUNT; i++) {
-            var z = Z_NEAR * Math.pow(Z_FAR / Z_NEAR, Math.random());
-            stars.push({
-                x: Math.random() * FW,
-                y: Math.random() * FH,
-                rate: FOCAL / z,
-                r: Math.min(SIZE_MAX, Math.max(SIZE_MIN, SIZE_K / z)),
-                a: Math.min(ALPHA_MAX, Math.max(ALPHA_MIN, ALPHA_K / z)),
-                warm: Math.random() < WARM,
-                ph: Math.random() * 6.2832,
-                tw: 0.5 + Math.random() * 1.6
-            });
-        }
-    };
-
-    var resize = function () {
-        DPR = Math.min(window.devicePixelRatio || 1, 1.5);
-        W = window.innerWidth; H = window.innerHeight;
-        cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
-        cv.style.width = W + 'px'; cv.style.height = H + 'px';
-        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-        build();
-    };
-
-    var wrap = function (v, span) {
-        v %= span;
-        return v < 0 ? v + span : v;
-    };
-
-    var frame = function (now) {
-        requestAnimationFrame(frame);
-        if (t0 === null) { t0 = now; last = now; }
-        var t = (now - t0) / 1000;
-        var dt = Math.min((now - last) / 1000, 0.05);
-        last = now;
-
-        var vis = 1 - Math.max(0, Math.min(1, window.kimberleyEnd || 0));
-        if (vis !== shown) { cv.style.opacity = vis.toFixed(3); shown = vis; }
-        if (vis <= 0.001) return;
-
-        var still = calm.matches;
-
-        if (!still) {
-            var k = Math.min(1, dt * MOUSE_EASE);
-            mx += (((window.kimberleyMouseX == null ? 0.5 : window.kimberleyMouseX) - 0.5) - mx) * k;
-            my += (((window.kimberleyMouseY == null ? 0.5 : window.kimberleyMouseY) - 0.5) - my) * k;
-        }
-
-        var camX = still ? 0 : (window.kimberleyScrollAz || 0) * TRAVEL + t * DRIFT + mx * MOUSE_SHIFT;
-        var camY = still ? 0 : my * MOUSE_SHIFT;
-
-        ctx.clearRect(0, 0, W, H);
-
-        for (var i = 0; i < COUNT; i++) {
-            var s = stars[i];
-            var px = wrap(s.x - camX * s.rate, FW) - MARGIN;
-            if (px < -3 || px > W + 3) continue;
-            var py = wrap(s.y - camY * s.rate, FH) - MARGIN;
-            if (py < -3 || py > H + 3) continue;
-
-            var a = still ? s.a : s.a * (0.72 + 0.28 * Math.sin(t * s.tw + s.ph));
-            ctx.fillStyle = s.warm
-                ? 'rgba(255,214,170,' + a.toFixed(3) + ')'
-                : 'rgba(206,224,255,' + a.toFixed(3) + ')';
-
-            if (s.r < 1.1) {
-                ctx.fillRect(px - s.r, py - s.r, s.r * 2, s.r * 2);
-            } else {
-                ctx.beginPath();
-                ctx.arc(px, py, s.r, 0, 6.2832);
-                ctx.fill();
-            }
-        }
-    };
-
-    resize();
-    window.addEventListener('resize', resize);
-    requestAnimationFrame(frame);
+const sprite = (() => {
+  const S = 64, C = S / 2;
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = S;
+  const g = cv.getContext('2d');
+  const grd = g.createRadialGradient(C, C, 0, C, C, C);
+  grd.addColorStop(0.00, 'rgba(255,255,255,1)');
+  grd.addColorStop(0.25, 'rgba(255,255,255,0.72)');
+  grd.addColorStop(0.55, 'rgba(255,255,255,0.16)');
+  grd.addColorStop(1.00, 'rgba(255,255,255,0)');
+  g.fillStyle = grd;
+  g.fillRect(0, 0, S, S);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 })();
+
+const buildShell = (spec) => {
+  const pos = new Float32Array(spec.n * 3);
+  const col = new Float32Array(spec.n * 3);
+  const c = new THREE.Color();
+
+  for (let i = 0; i < spec.n; i++) {
+    const u = Math.random() * 2 - 1;
+    const th = Math.random() * Math.PI * 2;
+    const s = Math.sqrt(1 - u * u);
+    const r = spec.near + Math.cbrt(Math.random()) * (spec.far - spec.near);
+    pos[i * 3] = s * Math.cos(th) * r;
+    pos[i * 3 + 1] = u * r;
+    pos[i * 3 + 2] = s * Math.sin(th) * r;
+
+    c.copy(Math.random() < WARM_ODDS ? WARM : COOL);
+    c.multiplyScalar(0.55 + Math.random() * 0.45);
+    col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+
+  const mat = new THREE.PointsMaterial({
+    map: sprite,
+    size: spec.size,
+    sizeAttenuation: true,
+    vertexColors: true,
+    transparent: true,
+    opacity: spec.opacity,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending
+  });
+
+  const points = new THREE.Points(geo, mat);
+  points.frustumCulled = false;
+  points.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3);
+  return { points, spec };
+};
+
+const scene = window.kimberleyScene;
+if (scene) {
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const shells = SHELLS.map((spec) => {
+    const shell = buildShell(spec);
+    scene.add(shell.points);
+    return shell;
+  });
+
+  let last = null;
+
+  const tick = (now) => {
+    requestAnimationFrame(tick);
+    if (last === null) { last = now; return; }
+    const dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+
+    const out = Math.max(0, Math.min(1, window.kimberleyEnd || 0));
+    const fade = 1 - out;
+
+    for (const { points, spec } of shells) {
+      points.visible = fade > 0.002;
+      points.material.opacity = spec.opacity * fade;
+      if (!calm.matches) {
+        points.rotation.y += dt * spec.spin;
+        points.rotation.x += dt * spec.spin * 0.35;
+      }
+    }
+  };
+
+  requestAnimationFrame(tick);
+}

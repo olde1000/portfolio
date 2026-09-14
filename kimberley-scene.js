@@ -8,6 +8,7 @@ renderer.setClearColor(0x000000, 0);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const scene = new THREE.Scene();
+window.kimberleyScene = scene;
 const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 100);
 window.kimberleyCamera = camera;
 camera.position.set(0, 0, 6);
