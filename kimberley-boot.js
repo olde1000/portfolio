@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 
-const WORD_FROM = 0.45, WORD_STEP = 0.16, WORD_DUR = 0.85;
-const CARD = 2.3, MARK_OUT = 3.3;
-const VEIL_FROM = 2.1, VEIL_TO = 3.4;
-const FLY_FROM = 3.0, FLY_TO = 7.7;
+const WORD_FROM = 0.45, WORD_STEP = 0.10, WORD_DUR = 0.55;
+const CHROMA_DUR = 0.80, CHROMA_DROP = 0.62;
+const CARD = 2.1, MARK_OUT = 3.1;
+const VEIL_FROM = 2.0, VEIL_TO = 3.3;
+const FLY_FROM = 2.9, FLY_TO = 7.6;
 const GATE = 0.86, BLEND = 0.80, GIVE_UP = 13.0;
 const FAR_R = 62, NEAR_R = 6.2, SWING = 0.40;
 const FAR_EL = 0.34, NEAR_EL = 0.015;
@@ -58,10 +59,11 @@ if (root && mark && renderer && scene) {
     if (i) mark.appendChild(document.createTextNode(' '));
     mark.appendChild(w.el);
   });
-  const lastWord = words[words.length - 1].at + WORD_DUR;
+  const lastWord = words[words.length - 1].at + CHROMA_DUR;
 
   const smooth = (v) => (v <= 0 ? 0 : v >= 1 ? 1 : v * v * (3 - 2 * v));
   const expo = (v) => (v <= 0 ? 0 : v >= 1 ? 1 : 1 - Math.pow(2, -9 * v));
+  const settle = (v) => (v <= 0 ? 0 : v >= 1 ? 1 : 1 - Math.pow(2, -7.5 * v) * Math.cos(v * 13.5));
   const band = (v, a, b) => smooth((v - a) / (b - a));
   const mix = (a, b, v) => a + (b - a) * v;
   const ROLL = (() => {
@@ -198,8 +200,12 @@ if (root && mark && renderer && scene) {
     for (let i = 0; i < words.length; i++) {
       const w = words[i];
       const lift = expo(smooth((clock - w.at) / WORD_DUR));
+      const land = settle((clock - w.at) / CHROMA_DUR);
+      const off = (1 - land) * CHROMA_DROP;
       w.el.style.setProperty('--kimberley-word-rise', ((1 - lift) * 112).toFixed(2) + '%');
       w.el.style.setProperty('--kimberley-word-in', lift.toFixed(3));
+      w.el.style.setProperty('--kimberley-word-drop', off.toFixed(4) + 'em');
+      w.el.style.setProperty('--kimberley-word-chroma', Math.min(1, Math.abs(off) * 2.4).toFixed(3));
     }
 
     if (run >= 1) {
