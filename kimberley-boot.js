@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-const CARD = 1.6, MARK_OUT = 2.4;
+const CARD = 1.7, MARK_OUT = 2.9;
 const VEIL_FROM = 1.9, VEIL_TO = 3.2;
 const FLY_FROM = 2.9, FLY_TO = 7.6;
 const GATE = 0.86, BLEND = 0.80, GIVE_UP = 13.0;
@@ -10,7 +10,7 @@ const STREAKS = 700, TUNNEL_R = 17, TUNNEL_Z = 86;
 const STREAK_K = 0.22, STREAK_CAP = 13, LIGHT_AT = 26;
 const SEEN_NEAR = 11, SEEN_FAR = 30;
 const WEIGHT_LO = 700, WEIGHT_HI = 700;
-const TRACK_LO = -0.012, TRACK_HI = 0.10;
+const TRACK_LO = -0.012, TRACK_HI = -0.012;
 
 const ASSETS = {
   'astronaut': 1211932,
@@ -174,7 +174,8 @@ if (root && mark && renderer && scene) {
     st.setProperty('--kimberley-boot-wght', Math.round(mix(WEIGHT_LO, WEIGHT_HI, out)));
     st.setProperty('--kimberley-boot-track', mix(TRACK_LO, TRACK_HI, out).toFixed(3) + 'em');
     st.setProperty('--kimberley-boot-lift', (1 - out).toFixed(3));
-    st.setProperty('--kimberley-boot-soft', (out * 9).toFixed(2) + 'px');
+    st.setProperty('--kimberley-boot-wide', (1 - out * 0.035).toFixed(4));
+    st.setProperty('--kimberley-boot-soft', '0px');
 
     if (run >= 1) {
       done = true;

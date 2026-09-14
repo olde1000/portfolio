@@ -78,7 +78,7 @@ body.kimberley-is-locked {
     color: #ffffff;
     opacity: var(--kimberley-boot-lift, 1);
     filter: blur(var(--kimberley-boot-soft, 0px));
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(var(--kimberley-boot-wide, 1));
     white-space: nowrap;
 }
 
