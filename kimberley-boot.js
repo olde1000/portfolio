@@ -9,8 +9,8 @@ const FAR_EL = 0.34, NEAR_EL = 0.015;
 const STREAKS = 700, TUNNEL_R = 17, TUNNEL_Z = 86;
 const STREAK_K = 0.22, STREAK_CAP = 13, LIGHT_AT = 26;
 const SEEN_NEAR = 11, SEEN_FAR = 30;
-const WEIGHT_LO = 150, WEIGHT_HI = 520;
-const TRACK_LO = 0.26, TRACK_HI = 0.62;
+const WEIGHT_LO = 700, WEIGHT_HI = 700;
+const TRACK_LO = -0.012, TRACK_HI = 0.10;
 
 const ASSETS = {
   'astronaut': 1211932,
