@@ -19,9 +19,11 @@
     window.wormWindBendY = 0;
     window.kimberleyLabsBytes = function () {};
 
+    var aimX = 0.5, aimY = 0.5;
+
     window.addEventListener('pointermove', function (e) {
-        window.kimberleyMouseX = e.clientX / window.innerWidth;
-        window.kimberleyMouseY = e.clientY / window.innerHeight;
+        aimX = e.clientX / window.innerWidth;
+        aimY = e.clientY / window.innerHeight;
     });
 
     window.addEventListener('pointerdown', function (e) {
@@ -35,6 +37,13 @@
         if (last === null) { last = now; return; }
         var dt = Math.min((now - last) / 1000, 0.05);
         last = now;
+
+        var live = holdT < HOLD;
+        var tx = live ? aimX : 0.5;
+        var ty = live ? aimY : 0.5;
+        var k = live ? 1 : Math.min(1, dt * 2.0);
+        window.kimberleyMouseX += (tx - window.kimberleyMouseX) * k;
+        window.kimberleyMouseY += (ty - window.kimberleyMouseY) * k;
 
         holdT += dt;
         if (holdT >= HOLD) {
