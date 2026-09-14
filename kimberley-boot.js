@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 
-const CARD = 1.7, MARK_OUT = 2.9;
-const VEIL_FROM = 1.9, VEIL_TO = 3.2;
-const FLY_FROM = 2.9, FLY_TO = 7.6;
+const WORD_FROM = 0.45, WORD_STEP = 0.16, WORD_DUR = 0.85;
+const CARD = 2.3, MARK_OUT = 3.3;
+const VEIL_FROM = 2.1, VEIL_TO = 3.4;
+const FLY_FROM = 3.0, FLY_TO = 7.7;
 const GATE = 0.86, BLEND = 0.80, GIVE_UP = 13.0;
 const FAR_R = 62, NEAR_R = 6.2, SWING = 0.40;
 const FAR_EL = 0.34, NEAR_EL = 0.015;
@@ -44,7 +45,23 @@ if (root && mark && renderer && scene) {
 
   document.body.classList.add('kimberley-is-locked');
 
+  const words = mark.textContent.trim().split(/\s+/).map((text, i) => {
+    const hold = document.createElement('span');
+    hold.className = 'kimberley-boot-word';
+    const glyphs = document.createElement('span');
+    glyphs.textContent = text;
+    hold.appendChild(glyphs);
+    return { el: hold, at: WORD_FROM + i * WORD_STEP };
+  });
+  mark.textContent = '';
+  words.forEach((w, i) => {
+    if (i) mark.appendChild(document.createTextNode(' '));
+    mark.appendChild(w.el);
+  });
+  const lastWord = words[words.length - 1].at + WORD_DUR;
+
   const smooth = (v) => (v <= 0 ? 0 : v >= 1 ? 1 : v * v * (3 - 2 * v));
+  const expo = (v) => (v <= 0 ? 0 : v >= 1 ? 1 : 1 - Math.pow(2, -9 * v));
   const band = (v, a, b) => smooth((v - a) / (b - a));
   const mix = (a, b, v) => a + (b - a) * v;
   const ROLL = (() => {
@@ -170,12 +187,20 @@ if (root && mark && renderer && scene) {
     root.style.setProperty('--kimberley-boot-veil', (1 - band(clock, VEIL_FROM, VEIL_TO)).toFixed(3));
 
     const out = band(clock, CARD, MARK_OUT);
+    const arrive = band(clock, WORD_FROM, lastWord);
     const st = mark.style;
     st.setProperty('--kimberley-boot-wght', Math.round(mix(WEIGHT_LO, WEIGHT_HI, out)));
     st.setProperty('--kimberley-boot-track', mix(TRACK_LO, TRACK_HI, out).toFixed(3) + 'em');
     st.setProperty('--kimberley-boot-lift', (1 - out).toFixed(3));
-    st.setProperty('--kimberley-boot-wide', (1 - out * 0.035).toFixed(4));
+    st.setProperty('--kimberley-boot-wide', (mix(0.978, 1, arrive) * (1 - out * 0.035)).toFixed(4));
     st.setProperty('--kimberley-boot-soft', '0px');
+
+    for (let i = 0; i < words.length; i++) {
+      const w = words[i];
+      const lift = expo(smooth((clock - w.at) / WORD_DUR));
+      w.el.style.setProperty('--kimberley-word-rise', ((1 - lift) * 112).toFixed(2) + '%');
+      w.el.style.setProperty('--kimberley-word-in', lift.toFixed(3));
+    }
 
     if (run >= 1) {
       done = true;

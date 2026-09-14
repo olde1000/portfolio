@@ -83,6 +83,20 @@ body.kimberley-is-locked {
     max-width: 92vw;
 }
 
+.kimberley-boot-word {
+    display: inline-block;
+    overflow: hidden;
+    padding: 0.18em 0.03em 0.26em;
+    margin: -0.18em -0.03em -0.26em;
+    vertical-align: baseline;
+}
+
+.kimberley-boot-word > span {
+    display: inline-block;
+    transform: translateY(var(--kimberley-word-rise, 112%));
+    opacity: var(--kimberley-word-in, 0);
+}
+
 .kimberley-credit {
     position: fixed;
     top: clamp(18px, 3vh, 30px);
