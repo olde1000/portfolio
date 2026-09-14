@@ -53,7 +53,7 @@
       if (logoA > 0.01) {
         var narrow = W < 640;
         var lfs = narrow ? Math.min(W * 0.088, 40) : Math.max(20, Math.min(W * 0.039, 50));
-        ctx.font = '400 ' + lfs + 'px "Source Code Pro", monospace';
+        ctx.font = '400 ' + lfs + "px 'Epilogue', sans-serif";
         try { ctx.letterSpacing = (lfs * -0.05) + 'px'; } catch (e) {}
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillStyle = 'rgba(8,3,3,' + logoA.toFixed(3) + ')';

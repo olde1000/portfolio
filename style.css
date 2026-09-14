@@ -1,9 +1,14 @@
 @font-face {
-    font-family: "Source Code Pro";
-    src: url("assets/fonts/sourcecodepro-var.woff2") format("woff2");
-    font-weight: 200 900;
+    font-family: "Epilogue";
+    src: url("assets/fonts/epilogue-var-latin.woff2") format("woff2");
+    font-weight: 100 900;
     font-style: normal;
     font-display: swap;
+}
+
+:root {
+    --kimberley-font: "Epilogue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --kimberley-bone: #e8e4dd;
 }
 
 *,
@@ -15,8 +20,8 @@
 body {
     margin: 0;
     background: #05070d;
-    color: #e8e4dd;
-    font-family: "Source Code Pro", monospace;
+    color: var(--kimberley-bone);
+    font-family: var(--kimberley-font);
     font-synthesis: none;
     overscroll-behavior: none;
 }
@@ -48,9 +53,9 @@ body.kimberley-is-locked {
 .kimberley-opening-cue {
     margin: 0;
     font-size: 0.6875rem;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 0.16em;
-    color: #e8e4dd;
+    color: var(--kimberley-bone);
 }
 
 .kimberley-opening-rule {
@@ -128,12 +133,13 @@ body.kimberley-is-engaged .kimberley-opening {
     gap: 0.45em;
     font-size: 0.8125rem;
     line-height: 1;
-    color: #e8e4dd;
+    color: var(--kimberley-bone);
     opacity: 0.74;
     pointer-events: none;
 }
 
 .kimberley-credit-by {
+    font-size: 0.82em;
     font-weight: 300;
     letter-spacing: 0.04em;
 }
