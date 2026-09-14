@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 
 const SHELLS = [
-  { n: 900,  near: 20, far: 40, size: 0.120, opacity: 0.95, spin: 0.011, sway: 1.00 },
-  { n: 1150, near: 40, far: 66, size: 0.140, opacity: 0.72, spin: 0.006, sway: 0.58 },
-  { n: 2900, near: 66, far: 95, size: 0.150, opacity: 0.52, spin: 0.003, sway: 0.28 }
+  { n: 900,  near: 20, far: 40, size: 0.380, opacity: 0.95, spin: 0.011, sway: 1.00 },
+  { n: 1150, near: 40, far: 66, size: 0.440, opacity: 0.72, spin: 0.006, sway: 0.58 },
+  { n: 2900, near: 66, far: 95, size: 0.460, opacity: 0.52, spin: 0.003, sway: 0.28 }
 ];
 const SWAY_YAW = 0.24, SWAY_PITCH = 0.15, SWAY_EASE = 2.4;
 const COOL = new THREE.Color(0xcfe0ff);
@@ -17,8 +17,8 @@ const sprite = (() => {
   const g = cv.getContext('2d');
   const grd = g.createRadialGradient(C, C, 0, C, C, C);
   grd.addColorStop(0.00, 'rgba(255,255,255,1)');
-  grd.addColorStop(0.25, 'rgba(255,255,255,0.72)');
-  grd.addColorStop(0.55, 'rgba(255,255,255,0.16)');
+  grd.addColorStop(0.16, 'rgba(255,255,255,0.95)');
+  grd.addColorStop(0.42, 'rgba(255,255,255,0.28)');
   grd.addColorStop(1.00, 'rgba(255,255,255,0)');
   g.fillStyle = grd;
   g.fillRect(0, 0, S, S);
