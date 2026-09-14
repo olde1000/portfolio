@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const TRIGGER = 0.50;
 const DIST = 72, LATERAL = 52, RISE = 7, DROP = -3;
-const DURATION = 12.0, SCALE = 2.2;
+const DURATION = 12.0, SCALE = 5.0, TAIL = 2.9;
 const FADE_IN = 0.08, FADE_OUT = 0.90;
 const SPIN = 0.24, AIM_EASE = 0.7, END_FADE = 1.1;
 
@@ -42,7 +42,8 @@ if (scene && camera) {
     blending: THREE.AdditiveBlending
   });
   const glow = new THREE.Sprite(glowMat);
-  glow.scale.setScalar(2.2);
+  glow.position.set(0, -SCALE * 0.55, 0);
+  glow.scale.setScalar(TAIL);
   rig.add(glow);
 
   const parts = [];
@@ -94,7 +95,6 @@ if (scene && camera) {
     camera.updateMatrixWorld();
     camera.getWorldQuaternion(aimQuat);
     flight = 0;
-    rig.visible = true;
   };
 
   const tick = (now) => {
@@ -106,8 +106,8 @@ if (scene && camera) {
     if (done) return;
 
     if (flight < 0) {
-      if ((window.kimberleyScrollP || 0) >= TRIGGER) launch();
-      return;
+      if ((window.kimberleyScrollP || 0) < TRIGGER) return;
+      launch();
     }
 
     flight += dt;
@@ -130,8 +130,8 @@ if (scene && camera) {
 
     const fade = Math.min(1, p / FADE_IN) * Math.min(1, (1 - p) / (1 - FADE_OUT)) * bow;
     for (const m of parts) m.opacity = fade;
-    glow.position.copy(heading).multiplyScalar(-0.9);
     glowMat.opacity = fade * (0.55 + 0.2 * Math.sin(flight * 11));
+    rig.visible = true;
   };
 
   requestAnimationFrame(tick);
