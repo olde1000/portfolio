@@ -37,7 +37,6 @@ body.kimberley-is-locked {
 
 .kimberley-starfield {
     position: fixed;
-    will-change: opacity;
     inset: 0;
     width: 100%;
     height: 100%;
