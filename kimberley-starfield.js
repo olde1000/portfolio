@@ -1,10 +1,11 @@
 import * as THREE from 'three';
 
 const SHELLS = [
-  { n: 460,  near: 20, far: 40, size: 0.120, opacity: 0.95, spin: 0.0042 },
-  { n: 1150, near: 40, far: 66, size: 0.140, opacity: 0.72, spin: 0.0024 },
-  { n: 2900, near: 66, far: 95, size: 0.150, opacity: 0.52, spin: 0.0011 }
+  { n: 460,  near: 20, far: 40, size: 0.120, opacity: 0.95, spin: 0.011, sway: 1.00 },
+  { n: 1150, near: 40, far: 66, size: 0.140, opacity: 0.72, spin: 0.006, sway: 0.58 },
+  { n: 2900, near: 66, far: 95, size: 0.150, opacity: 0.52, spin: 0.003, sway: 0.28 }
 ];
+const SWAY_YAW = 0.085, SWAY_PITCH = 0.055, SWAY_EASE = 2.4;
 const COOL = new THREE.Color(0xcfe0ff);
 const WARM = new THREE.Color(0xffd6aa);
 const WARM_ODDS = 0.17;
@@ -63,7 +64,7 @@ const buildShell = (spec) => {
   const points = new THREE.Points(geo, mat);
   points.frustumCulled = false;
   points.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3);
-  return { points, spec };
+  return { points, spec, spinY: points.rotation.y, spinX: points.rotation.x };
 };
 
 const scene = window.kimberleyScene;
@@ -75,7 +76,7 @@ if (scene) {
     return shell;
   });
 
-  let last = null;
+  let last = null, mx = 0, my = 0;
 
   const tick = (now) => {
     requestAnimationFrame(tick);
@@ -85,14 +86,23 @@ if (scene) {
 
     const out = Math.max(0, Math.min(1, window.kimberleyEnd || 0));
     const fade = 1 - out;
+    const still = calm.matches;
 
-    for (const { points, spec } of shells) {
+    if (!still) {
+      const k = Math.min(1, dt * SWAY_EASE);
+      mx += (((window.kimberleyMouseX == null ? 0.5 : window.kimberleyMouseX) - 0.5) - mx) * k;
+      my += (((window.kimberleyMouseY == null ? 0.5 : window.kimberleyMouseY) - 0.5) - my) * k;
+    }
+
+    for (const shell of shells) {
+      const { points, spec } = shell;
       points.visible = fade > 0.002;
       points.material.opacity = spec.opacity * fade;
-      if (!calm.matches) {
-        points.rotation.y += dt * spec.spin;
-        points.rotation.x += dt * spec.spin * 0.35;
-      }
+      if (still) continue;
+      shell.spinY += dt * spec.spin;
+      shell.spinX += dt * spec.spin * 0.35;
+      points.rotation.y = shell.spinY - mx * SWAY_YAW * spec.sway;
+      points.rotation.x = shell.spinX + my * SWAY_PITCH * spec.sway;
     }
   };
 
