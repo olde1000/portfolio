@@ -35,7 +35,7 @@ body.kimberley-is-locked {
     left: 50%;
     bottom: clamp(32px, 7vh, 72px);
     transform: translateX(-50%);
-    z-index: 3;
+    z-index: 4;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -97,12 +97,22 @@ body.kimberley-is-engaged .kimberley-opening {
     display: block;
 }
 
-.kimberley-fire-wash {
+.kimberley-shockwave {
     position: fixed;
     inset: 0;
     width: 100%;
     height: 100%;
     z-index: 2;
+    display: block;
+    pointer-events: none;
+}
+
+.kimberley-fire-wash {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
     display: block;
     pointer-events: none;
 }

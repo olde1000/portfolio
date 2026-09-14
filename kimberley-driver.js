@@ -47,6 +47,7 @@
     });
 
     window.addEventListener('pointerdown', function (e) {
+        if (e.button !== 0) return;
         window.kimberleyClickNX = e.clientX / window.innerWidth;
         window.kimberleyClickNY = e.clientY / window.innerHeight;
         window.kimberleyClickPulse = (window.kimberleyClickPulse || 0) + 1;
