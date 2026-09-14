@@ -11,8 +11,9 @@ const CONFIG = {
     earth: 'assets/models/earth.glb',
     modelScale: 1.0,
     scrollVh: 760,
-    approach: [0.52, 0.76],
-    impact: [0.76, 1.00],
+    approach: [0.46, 0.70],
+    drift: [0.46, 0.80],
+    impact: [0.80, 1.00],
     outroMax: 0.78,
     beats: [],
     views: [
@@ -109,8 +110,9 @@ let earth = null, earthPivot, earthMats = [];
 let asteroid, shardGroup, shockRing;
 const shards = [];
 
-const IMPACT = new THREE.Vector3(2.6, -0.35, -2.0);
+const IMPACT = new THREE.Vector3(6.6, -0.3, 0.0);
 const _proj = new THREE.Vector3();
+const camBase = new THREE.Vector3(0, 0.9, 13.0);
 let rafId = 0;
 let entered = false, enterAmt = 0;
 let progress = 0, progressEased = 0;
@@ -261,7 +263,7 @@ const buildImpact = () => {
     shardGroup = new THREE.Group();
     shardGroup.visible = false;
     scene.add(shardGroup);
-    const shardGeo = new THREE.TetrahedronGeometry(0.12);
+    const shardGeo = new THREE.TetrahedronGeometry(0.28);
     for (let i = 0; i < 40; i++) {
         const mesh = new THREE.Mesh(shardGeo, new THREE.MeshStandardMaterial({
             color: 0x2f6ea6, emissive: 0xff2a08, emissiveIntensity: 0,
@@ -276,7 +278,7 @@ const buildImpact = () => {
             dx: Math.sin(ph) * Math.cos(th),
             dy: Math.sin(ph) * Math.sin(th) * 0.8,
             dz: Math.abs(Math.cos(ph)) * 0.7 + 0.5,
-            sp: 1.6 + Math.random() * 2.6,
+            sp: 3.5 + Math.random() * 5.5,
             sz: Math.random() * 0.7,
             rx: Math.random() * 2 - 1,
             ry: Math.random() * 2 - 1,
@@ -481,7 +483,10 @@ const draw = () => {
     progressEased += (progress - progressEased) * (reduced() ? 1 : 0.08);
     const p = progressEased;
     const approach = smoothstep(CONFIG.approach[0], CONFIG.approach[1], p);
+    const drift = smoothstep(CONFIG.drift[0], CONFIG.drift[1], p);
     const outro = clamp01((p - CONFIG.impact[0]) / (CONFIG.impact[1] - CONFIG.impact[0])) * CONFIG.outroMax;
+    const toCam = outro > 0 ? Math.pow(clamp01((outro - 0.10) / 0.52), 2) : 0;
+    const astroVanish = outro > 0 ? clamp01((outro - 0.55) / 0.09) : 0;
 
     mouse.x += (mouseTarget.x - mouse.x) * 0.06;
     mouse.y += (mouseTarget.y - mouse.y) * 0.06;
@@ -538,6 +543,21 @@ const draw = () => {
             rig.head.rotation.x = RIG.head * 0.8 * Math.sin(at * 0.9 + 1.1) + my * 0.12;
             rig.head.rotation.z = RIG.head * 0.5 * Math.sin(at * 0.5 + 2.0);
         }
+
+        const faceUs = smoothstep(0.04, 0.30, outro);
+        astronautHolder.position.x += drift * 4.5;
+        astronautHolder.position.y += drift * -0.3;
+        astronautHolder.position.z += drift * -2.5;
+        astronautHolder.rotation.y += Math.PI * drift * (1 - faceUs);
+        astronautHolder.rotation.x += 0.35 * drift * (1 - faceUs);
+        astronautHolder.scale.setScalar(1 - drift * 0.4 * (1 - outro));
+
+        if (outro > 0.001) {
+            astronautHolder.position.x += (1.2 - astronautHolder.position.x) * toCam;
+            astronautHolder.position.y += (0.3 - astronautHolder.position.y) * toCam;
+            astronautHolder.position.z += (13.0 - astronautHolder.position.z) * toCam;
+        }
+        astronautHolder.visible = astroVanish < 0.995;
     }
 
     if (!dragging) { manualAz *= 0.98; manualEl *= 0.98; }
@@ -547,22 +567,37 @@ const draw = () => {
     const view = viewAt(p);
     const az = Math.max(-1.4, Math.min(1.4, view.az + manualAzE + mx * 0.15));
     const el = Math.max(-0.9, Math.min(0.9, view.el + manualElE + my * 0.12));
-    const dist = view.dist * lerp(2.5, 1.0, emerge) * (1 + approach * 0.22 + outro * 0.30);
-    const cx = Math.sin(az) * Math.cos(el) * dist;
-    const cy = Math.sin(el) * dist + 0.12 + (1 - emerge) * 0.8;
-    const cz = Math.cos(az) * Math.cos(el) * dist;
-    camera.position.x += (cx - camera.position.x) * 0.07;
-    camera.position.y += (cy - camera.position.y) * 0.07;
-    camera.position.z += (cz - camera.position.z) * 0.07;
-    camera.lookAt(0, 0.12, 0);
+    const dist = view.dist * lerp(2.5, 1.0, emerge);
+    const orbitX = Math.sin(az) * Math.cos(el) * dist;
+    const orbitY = Math.sin(el) * dist + 0.12 + (1 - emerge) * 0.8;
+    const orbitZ = Math.cos(az) * Math.cos(el) * dist;
+
+    const sweep = Math.sin(approach * Math.PI);
+    const endDrift = approach * (1 - outro);
+    const endX = 1.6 + sweep * -2.6 + Math.sin(t * 0.08) * 0.5 * endDrift;
+    const endY = 0.4 + sweep * 1.3 + Math.sin(t * 0.061 + 1.0) * 0.3 * endDrift;
+    const endZ = 15.0 - toCam * 1.0;
+    const lookX = 1.6 + sweep * 0.4 + Math.sin(t * 0.05) * 0.15 * endDrift;
+
+    camBase.x += (lerp(orbitX, endX, approach) - camBase.x) * 0.07;
+    camBase.y += (lerp(orbitY, endY, approach) - camBase.y) * 0.07;
+    camBase.z += (lerp(orbitZ, endZ, approach) - camBase.z) * 0.07;
+
+    const shake = outro > 0 ? Math.max(0, 1 - Math.abs(outro - 0.31) / 0.07) : 0;
+    camera.position.set(
+        camBase.x + shake * 0.18 * Math.sin(t * 77.0),
+        camBase.y + shake * 0.14 * Math.cos(t * 83.0),
+        camBase.z
+    );
+    camera.lookAt(
+        lerp(0, lookX, approach),
+        lerp(0.12, 0.4, approach),
+        lerp(0, 1.0, approach)
+    );
 
     if (earth) {
-        earthPivot.position.set(
-            IMPACT.x + (1 - approach) * 4.4,
-            IMPACT.y,
-            IMPACT.z - (1 - approach) * 3.0
-        );
-        earthPivot.scale.setScalar(approach * 1.7);
+        earthPivot.position.set(IMPACT.x + (1 - approach) * 5.0, IMPACT.y, IMPACT.z);
+        earthPivot.scale.setScalar(approach);
         earthPivot.rotation.y += dt * 0.05;
         const heat = smoothstep(0.12, 0.30, outro);
         for (let i = 0; i < earthMats.length; i++) {
@@ -578,11 +613,11 @@ const draw = () => {
         const appr = ease(clamp01(outro / 0.30));
         asteroid.visible = outro < 0.32;
         asteroid.position.set(
-            lerp(9.0, IMPACT.x, appr),
-            lerp(6.0, IMPACT.y, appr),
-            lerp(-7.0, IMPACT.z, appr)
+            lerp(12.0, IMPACT.x, appr),
+            lerp(7.5, IMPACT.y, appr),
+            lerp(-3.0, IMPACT.z, appr)
         );
-        asteroid.scale.setScalar(0.16 + 0.20 * appr);
+        asteroid.scale.setScalar(0.35 + 0.28 * appr);
         asteroid.rotation.x += dt * 3.0;
         asteroid.rotation.y += dt * 2.2;
 
