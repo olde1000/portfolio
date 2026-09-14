@@ -8,6 +8,7 @@ const FAR_R = 62, NEAR_R = 6.2, SWING = 0.40;
 const FAR_EL = 0.34, NEAR_EL = 0.015;
 const STREAKS = 700, TUNNEL_R = 17, TUNNEL_Z = 86;
 const STREAK_K = 0.22, STREAK_CAP = 13, LIGHT_AT = 26;
+const SEEN_NEAR = 11, SEEN_FAR = 30;
 const WEIGHT_LO = 150, WEIGHT_HI = 520;
 const TRACK_LO = 0.26, TRACK_HI = 0.62;
 
@@ -89,6 +90,23 @@ if (root && mark && renderer && scene) {
   scene.add(warp);
 
   let clock = 0, run = 0, held = 0, wasR = FAR_R, done = false;
+  let skin = null;
+
+  const resolve = (amount) => {
+    const astro = window.kimberleyAstro;
+    if (!astro) return;
+    if (!skin) {
+      skin = [];
+      astro.traverse((n) => {
+        if (!n.isMesh || !n.material) return;
+        const ms = Array.isArray(n.material) ? n.material : [n.material];
+        ms.forEach((m) => { if (skin.indexOf(m) === -1) skin.push(m); });
+      });
+      if (!skin.length) { skin = null; return; }
+    }
+    astro.visible = amount > 0.002;
+    for (let i = 0; i < skin.length; i++) skin[i].opacity *= amount;
+  };
 
   const fly = (dt, cam) => {
     clock += dt * pace;
@@ -146,6 +164,8 @@ if (root && mark && renderer && scene) {
       }
       geo.attributes.position.needsUpdate = true;
     }
+
+    resolve(1 - band(radius, SEEN_NEAR, SEEN_FAR));
 
     root.style.setProperty('--kimberley-boot-veil', (1 - band(clock, VEIL_FROM, VEIL_TO)).toFixed(3));
 
