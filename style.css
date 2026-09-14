@@ -117,6 +117,32 @@ body.kimberley-is-engaged .kimberley-opening {
     pointer-events: none;
 }
 
+.kimberley-credit {
+    position: fixed;
+    top: clamp(18px, 3vh, 30px);
+    left: clamp(18px, 3vw, 34px);
+    z-index: 5;
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.45em;
+    font-size: 0.8125rem;
+    line-height: 1;
+    color: #e8e4dd;
+    opacity: 0.74;
+    pointer-events: none;
+}
+
+.kimberley-credit-by {
+    font-weight: 300;
+    letter-spacing: 0.04em;
+}
+
+.kimberley-credit-mark {
+    font-weight: 500;
+    letter-spacing: -0.01em;
+}
+
 .kimberley-sr-only {
     position: absolute;
     width: 1px;

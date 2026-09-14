@@ -9,6 +9,7 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 100);
+window.kimberleyCamera = camera;
 camera.position.set(0, 0, 6);
 
 scene.add(new THREE.HemisphereLight(0xbcd2ff, 0x0a0a12, 1.15));
@@ -78,6 +79,7 @@ new GLTFLoader().load('assets/models/astronaut.glb', (gltf) => {
   wrap.scale.setScalar(2.6 / (size.y || 1));
   holder.add(wrap);
   astro = wrap;
+  window.kimberleyAstro = wrap;
   obj.traverse((n) => {
     if (n.isMesh && n.material) {
       const arr = Array.isArray(n.material) ? n.material : [n.material];
