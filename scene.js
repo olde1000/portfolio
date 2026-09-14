@@ -241,7 +241,8 @@ const tick = (now) => {
   kickX += kickVX * dt;
   kickY += kickVY * dt;
 
-  canOrbit = settle > 0.5;
+  canOrbit = settle > 0.5 && (window.kimberleyEnd || 0) < 0.001;
+  if (!canOrbit) dragging = false;
   astroCanvas.style.pointerEvents = canOrbit ? 'auto' : 'none';
   astroCanvas.style.cursor = canOrbit ? (dragging ? 'grabbing' : 'grab') : 'default';
   if (!dragging) {
