@@ -13,6 +13,7 @@ const CONFIG = {
     scrollVh: 760,
     approach: [0.52, 0.76],
     impact: [0.76, 1.00],
+    outroMax: 0.78,
     beats: [],
     views: [
         { p: 0.00, az: 0.00, el: 0.05, dist: 5.0 },
@@ -78,8 +79,21 @@ const glCanvas = document.getElementById('spaceGL');
 const scrollEl = document.getElementById('spaceScroll');
 const spacerEl = document.getElementById('spaceSpacer');
 const captionsEl = document.getElementById('spaceCaptions');
-const flashEl = document.getElementById('spaceFlash');
-const wordmarkEl = document.getElementById('spaceWordmark');
+const fireCanvas = document.getElementById('spaceFireWash');
+const fireCtx = fireCanvas.getContext('2d');
+
+const WORDMARK = 'OLIVIER';
+const embers = [];
+for (let i = 0; i < 90; i++) {
+    embers.push({
+        a: Math.random() * Math.PI * 2,
+        r: Math.random(),
+        sp: 0.35 + Math.random() * 1.1,
+        sz: 0.6 + Math.random() * 2.2,
+        ph: Math.random() * Math.PI * 2,
+    });
+}
+let fireW = 0, fireH = 0;
 
 const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -96,6 +110,7 @@ let asteroid, shardGroup, shockRing;
 const shards = [];
 
 const IMPACT = new THREE.Vector3(2.6, -0.35, -2.0);
+const _proj = new THREE.Vector3();
 let rafId = 0;
 let entered = false, enterAmt = 0;
 let progress = 0, progressEased = 0;
@@ -320,7 +335,80 @@ const viewAt = (p) => {
     return last;
 };
 
+const resizeFire = () => {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    fireW = window.innerWidth;
+    fireH = window.innerHeight;
+    fireCanvas.width = Math.round(fireW * dpr);
+    fireCanvas.height = Math.round(fireH * dpr);
+    fireCanvas.style.width = fireW + 'px';
+    fireCanvas.style.height = fireH + 'px';
+    fireCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+};
+
+const drawFireWash = (P, ts, ix, iy) => {
+    fireCtx.clearRect(0, 0, fireW, fireH);
+    if (P <= 0.001) return;
+
+    const bloom = smoothstep(0.30, 0.64, P);
+    const recede = smoothstep(0.80, 1.0, P);
+    const alpha = bloom * (1 - recede);
+
+    const flash = Math.max(0, 1 - Math.abs(P - 0.30) / 0.05);
+    if (flash > 0) {
+        fireCtx.fillStyle = 'rgba(255,250,240,' + (flash * 0.9).toFixed(3) + ')';
+        fireCtx.fillRect(0, 0, fireW, fireH);
+    }
+    if (alpha <= 0.001) return;
+
+    const flick = 0.88 + 0.12 * Math.sin(ts * 30) * Math.sin(ts * 12.3);
+    const seal = Math.min(1, smoothstep(0.48, 0.64, P) * 1.05) * (1 - recede);
+    fireCtx.fillStyle = 'rgba(120,16,8,' + seal.toFixed(3) + ')';
+    fireCtx.fillRect(0, 0, fireW, fireH);
+
+    const rad = Math.max(1, bloom * Math.hypot(fireW, fireH) * 1.15);
+    const ha = alpha * flick;
+    const g = fireCtx.createRadialGradient(ix, iy, 0, ix, iy, rad);
+    g.addColorStop(0, 'rgba(255,244,214,' + ha.toFixed(3) + ')');
+    g.addColorStop(0.18, 'rgba(255,160,50,' + (ha * 0.95).toFixed(3) + ')');
+    g.addColorStop(0.45, 'rgba(226,52,18,' + (ha * 0.85).toFixed(3) + ')');
+    g.addColorStop(1, 'rgba(90,6,4,0)');
+    fireCtx.globalCompositeOperation = 'lighter';
+    fireCtx.fillStyle = g;
+    fireCtx.fillRect(0, 0, fireW, fireH);
+
+    for (let i = 0; i < embers.length; i++) {
+        const e = embers[i];
+        const life = (ts * e.sp + e.r) % 1;
+        const ex = ix + Math.cos(e.a) * life * fireW * 0.5 * (0.3 + e.r);
+        const ey = iy - life * fireH * 0.62 + Math.sin(ts * 2 + e.ph) * 8;
+        const ea = alpha * (1 - life) * 0.8;
+        if (ea > 0.02) {
+            fireCtx.fillStyle = 'rgba(255,' + (150 + Math.floor(80 * e.r)) + ',60,' + ea.toFixed(3) + ')';
+            fireCtx.fillRect(ex, ey, e.sz, e.sz);
+        }
+    }
+    fireCtx.globalCompositeOperation = 'source-over';
+
+    const logoA = smoothstep(0.58, 0.70, P) * (1 - smoothstep(0.84, 0.94, P));
+    if (logoA > 0.01) {
+        const size = fireW < 640
+            ? Math.min(fireW * 0.088, 40)
+            : Math.max(20, Math.min(fireW * 0.039, 50));
+        fireCtx.font = '400 ' + size + 'px "Source Code Pro", monospace';
+        try { fireCtx.letterSpacing = (size * 0.02).toFixed(2) + 'px'; } catch (err) {}
+        fireCtx.textAlign = 'center';
+        fireCtx.textBaseline = 'middle';
+        fireCtx.fillStyle = 'rgba(8,3,3,' + logoA.toFixed(3) + ')';
+        fireCtx.fillText(WORDMARK, fireW / 2, fireH / 2);
+        try { fireCtx.letterSpacing = '0px'; } catch (err) {}
+        fireCtx.textAlign = 'left';
+    }
+    fireCtx.globalAlpha = 1;
+};
+
 const resize = () => {
+    resizeFire();
     if (!renderer) return;
     const w = window.innerWidth, h = window.innerHeight;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarse() ? 1.5 : 2));
@@ -393,7 +481,7 @@ const draw = () => {
     progressEased += (progress - progressEased) * (reduced() ? 1 : 0.08);
     const p = progressEased;
     const approach = smoothstep(CONFIG.approach[0], CONFIG.approach[1], p);
-    const outro = clamp01((p - CONFIG.impact[0]) / (CONFIG.impact[1] - CONFIG.impact[0]));
+    const outro = clamp01((p - CONFIG.impact[0]) / (CONFIG.impact[1] - CONFIG.impact[0])) * CONFIG.outroMax;
 
     mouse.x += (mouseTarget.x - mouse.x) * 0.06;
     mouse.y += (mouseTarget.y - mouse.y) * 0.06;
@@ -533,10 +621,13 @@ const draw = () => {
         shockRing.visible = false;
     }
 
-    flashEl.style.opacity = smoothstep(0.28, 0.40, outro).toFixed(3);
-    const mark = smoothstep(0.46, 0.66, outro);
-    wordmarkEl.style.opacity = mark.toFixed(3);
-    wordmarkEl.style.transform = 'scale(' + (1.05 - mark * 0.05).toFixed(4) + ')';
+    _proj.copy(IMPACT).project(camera);
+    drawFireWash(
+        outro,
+        t,
+        (_proj.x * 0.5 + 0.5) * fireW,
+        (-_proj.y * 0.5 + 0.5) * fireH
+    );
 
     if (backdropTexture) backdropTexture.needsUpdate = true;
 

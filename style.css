@@ -88,34 +88,23 @@ body {
     will-change: transform;
 }
 
-.space-flash {
+.space-firewash {
     position: absolute;
     inset: 0;
     z-index: 3;
-    opacity: 0;
+    display: block;
     pointer-events: none;
-    background: radial-gradient(58% 58% at 58% 46%,
-        #fff4d6 0%,
-        #ffc24d 18%,
-        #ff7a2a 42%,
-        #d63a08 70%,
-        #5c1401 100%);
 }
 
 .space-wordmark {
     position: absolute;
-    inset: 0;
-    z-index: 4;
-    margin: 0;
-    display: grid;
-    place-items: center;
-    opacity: 0;
-    pointer-events: none;
-    font-size: clamp(3rem, 13vw, 12rem);
-    font-weight: 250;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    color: #1c0600;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
 }
 
 @media (max-width: 640px) {
