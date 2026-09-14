@@ -93,7 +93,7 @@ body.kimberley-is-locked {
 
 .kimberley-intro {
     position: fixed;
-    left: clamp(24px, 6vw, 96px);
+    right: clamp(24px, 6vw, 96px);
     top: 50%;
     transform: translateY(-50%);
     z-index: 4;
