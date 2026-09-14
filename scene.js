@@ -301,7 +301,7 @@ const tick = (now) => {
   camY += Math.sin(t * 0.4 + 1.0) * 0.05 * cu;
   const spaceHold = settle * (1 - cu) * (1 - sceneOut);
   if (spaceHold > 0.001) {
-    const az = Math.sin(t * 0.13) * 0.55 + Math.sin(t * 0.071 + 1.0) * 0.28;
+    const az = Math.sin(t * 0.13) * 0.55 + Math.sin(t * 0.071 + 1.0) * 0.28 + (window.kimberleyScrollAz || 0);
     const el = Math.sin(t * 0.09 + 0.5) * 0.16;
     const ce = Math.cos(el), rad = 6.0;
     camX += (Math.sin(az) * ce * rad) * spaceHold;

@@ -18,7 +18,16 @@ body {
     color: #e8e4dd;
     font-family: "Source Code Pro", monospace;
     font-synthesis: none;
+    overscroll-behavior: none;
+}
+
+body.is-locked {
     overflow: hidden;
+}
+
+.scroll-track {
+    height: 500vh;
+    pointer-events: none;
 }
 
 .kimberley-astro-gl {

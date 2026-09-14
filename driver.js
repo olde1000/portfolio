@@ -1,7 +1,10 @@
 (function () {
-    var HOLD = 2.5, END_DUR = 6.0, ROCKET_DUR = 10.0, OUTRO_DUR = 6.0;
+    var ORBIT_TURNS = 1.15, END_DUR = 6.0, ROCKET_DUR = 10.0, OUTRO_DUR = 6.0;
 
-    var holdT = 0, endT = 0, rocketT = 0, outroT = -1, last = null;
+    var endT = 0, rocketT = 0, outroT = -1, last = null;
+    var launched = false, scrollAz = 0;
+
+    window.kimberleyScrollAz = 0;
 
     window.kimberleyJp = 1.0;
     window.kimberleyMouseX = 0.5;
@@ -38,15 +41,24 @@
         var dt = Math.min((now - last) / 1000, 0.05);
         last = now;
 
-        var live = holdT < HOLD;
-        var tx = live ? aimX : 0.5;
-        var ty = live ? aimY : 0.5;
-        var k = live ? 1 : Math.min(1, dt * 2.0);
+        var tx = launched ? 0.5 : aimX;
+        var ty = launched ? 0.5 : aimY;
+        var k = launched ? Math.min(1, dt * 2.0) : 1;
         window.kimberleyMouseX += (tx - window.kimberleyMouseX) * k;
         window.kimberleyMouseY += (ty - window.kimberleyMouseY) * k;
 
-        holdT += dt;
-        if (holdT >= HOLD) {
+        if (!launched) {
+            var span = document.documentElement.scrollHeight - window.innerHeight;
+            var sp = span > 0 ? Math.min(1, Math.max(0, window.scrollY / span)) : 1;
+            scrollAz += (sp * Math.PI * 2 * ORBIT_TURNS - scrollAz) * Math.min(1, dt * 4.0);
+            window.kimberleyScrollAz = scrollAz;
+            if (sp >= 0.999) {
+                launched = true;
+                document.body.classList.add('is-locked');
+            }
+        }
+
+        if (launched) {
             endT = Math.min(END_DUR, endT + dt);
             rocketT = Math.min(ROCKET_DUR, rocketT + dt);
         }
