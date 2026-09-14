@@ -4,7 +4,6 @@ const SLOTS = 8;
 const LIFE = 0.85, SEED = 0.015, GROW = 0.125, EASE = 0.55;
 const THICK = 0.010, SPREAD = 0.028, PUSH = 0.022;
 const CHROMA = 0.0035, RIM = 0.30;
-const BG = 0x05070d;
 
 const renderer = window.kimberleyRenderer;
 
@@ -21,11 +20,6 @@ if (renderer) {
     uniform vec2 u_res;
     uniform vec2 u_clicks[${SLOTS}];
     uniform float u_ages[${SLOTS}];
-
-    vec3 kimberleyEncode(vec3 c) {
-      c = max(c, vec3(0.0));
-      return mix(c * 12.92, 1.055 * pow(c, vec3(0.41666)) - 0.055, step(vec3(0.0031308), c));
-    }
 
     void main() {
       vec2 uv = v_uv;
@@ -52,17 +46,16 @@ if (renderer) {
 
       vec2 suv = uv + flow;
       vec4 s = texture2D(u_tex, suv);
-      vec3 col = s.rgb;
 
       if (rim > 0.002) {
         vec2 dir = normalize(flow + 1e-5);
         float ca = rim * ${CHROMA.toFixed(4)};
-        col.r = texture2D(u_tex, suv + dir * ca).r;
-        col.b = texture2D(u_tex, suv - dir * ca).b;
-        col += vec3(0.70, 0.84, 1.0) * rim * ${RIM.toFixed(2)};
+        s.r = texture2D(u_tex, suv + dir * ca).r;
+        s.b = texture2D(u_tex, suv - dir * ca).b;
+        s.rgb += vec3(0.70, 0.84, 1.0) * rim * ${RIM.toFixed(2)};
       }
 
-      gl_FragColor = vec4(kimberleyEncode(col), 1.0);
+      gl_FragColor = s;
     }
   `;
 
@@ -70,12 +63,7 @@ if (renderer) {
   for (let i = 0; i < SLOTS; i++) clicks.push(new THREE.Vector2(0.5, 0.5));
   const ages = new Float32Array(SLOTS).fill(-1);
 
-  const target = new THREE.WebGLRenderTarget(1, 1, {
-    magFilter: THREE.LinearFilter,
-    minFilter: THREE.LinearFilter,
-    format: THREE.RGBAFormat,
-    type: THREE.UnsignedByteType
-  });
+  let grab = null;
 
   const quad = new THREE.Mesh(
     new THREE.PlaneGeometry(2, 2),
@@ -85,11 +73,12 @@ if (renderer) {
       depthTest: false,
       depthWrite: false,
       uniforms: {
-        u_tex: { value: target.texture },
+        u_tex: { value: null },
         u_res: { value: new THREE.Vector2(1, 1) },
         u_clicks: { value: clicks },
         u_ages: { value: ages }
-      }
+      },
+      blending: THREE.NoBlending
     })
   );
   const pass = new THREE.Scene();
@@ -97,7 +86,7 @@ if (renderer) {
   const flat = new THREE.Camera();
 
   const size = new THREE.Vector2();
-  const wasClear = new THREE.Color();
+  const corner = new THREE.Vector2(0, 0);
   let slot = 0, seenPulse = 0, lastNow = null;
 
   const strike = () => {
@@ -127,26 +116,18 @@ if (renderer) {
       else live = true;
     }
 
-    if (!live) {
-      renderer.setRenderTarget(null);
-      renderer.render(scene, camera);
-      return;
-    }
+    renderer.render(scene, camera);
+    if (!live) return;
 
     renderer.getDrawingBufferSize(size);
-    if (target.width !== size.x || target.height !== size.y) {
-      target.setSize(size.x, size.y);
+    if (!grab || grab.image.width !== size.x || grab.image.height !== size.y) {
+      if (grab) grab.dispose();
+      grab = new THREE.FramebufferTexture(size.x, size.y);
+      quad.material.uniforms.u_tex.value = grab;
       quad.material.uniforms.u_res.value.copy(size);
     }
 
-    renderer.getClearColor(wasClear);
-    const wasAlpha = renderer.getClearAlpha();
-    renderer.setClearColor(BG, 1);
-    renderer.setRenderTarget(target);
-    renderer.clear();
-    renderer.render(scene, camera);
-    renderer.setRenderTarget(null);
-    renderer.setClearColor(wasClear, wasAlpha);
+    renderer.copyFramebufferToTexture(corner, grab);
     renderer.render(pass, flat);
   };
 }
