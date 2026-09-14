@@ -2,8 +2,8 @@ import * as THREE from 'three';
 
 const SLOTS = 8;
 const LIFE = 0.85, SEED = 0.015, GROW = 0.125, EASE = 0.55;
-const THICK = 0.010, SPREAD = 0.028, PUSH = 0.022;
-const CHROMA = 0.0035, RIM = 0.30;
+const THICK = 0.016, SPREAD = 0.034, PUSH = 0.045, FADE = 1.6;
+const CHROMA = 0.0065, RIM = 0.60, CORE = 0.22;
 
 window.kimberleyShockProfile = { life: LIFE, seed: SEED, grow: GROW, ease: EASE };
 
@@ -40,10 +40,11 @@ if (renderer) {
         float thick = ${THICK.toFixed(3)} + life * ${SPREAD.toFixed(3)};
         float lobe = (r - radius) / thick;
         float shell = exp(-lobe * lobe);
-        float decay = pow(1.0 - life, 2.2);
+        float decay = pow(1.0 - life, ${FADE.toFixed(1)});
 
         flow += normalize(cd + 1e-5) * shell * -lobe * decay * ${PUSH.toFixed(3)};
-        rim += shell * shell * decay;
+        rim += (shell * shell * 0.7 + shell * 0.4) * decay;
+        rim += smoothstep(radius, radius * 0.25, r) * decay * ${CORE.toFixed(2)} * (1.0 - life);
       }
 
       vec2 suv = uv + flow;
