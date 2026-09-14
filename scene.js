@@ -181,13 +181,26 @@ let userYaw = 0, userPitch = 0, canOrbit = false, idleAmt = 1;
 let kickX = 0, kickY = 0, kickVX = 0, kickVY = 0, kickPulse = 0;
 let astroHover = 0, earthHover = 0;
 const _projV = new THREE.Vector3();
+const _ray = new THREE.Raycaster();
+const _ndc = new THREE.Vector2();
+let overAstro = false;
+const hitAstro = (e) => {
+  if (!astro) return false;
+  _ndc.x = (e.clientX / window.innerWidth) * 2 - 1;
+  _ndc.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  _ray.setFromCamera(_ndc, camera);
+  return _ray.intersectObject(astro, true).length > 0;
+};
 astroCanvas.addEventListener('pointerdown', (e) => {
-  if (!canOrbit) return;
+  if (!canOrbit || !hitAstro(e)) return;
   dragging = true; lastX = e.clientX; lastY = e.clientY;
   try { astroCanvas.setPointerCapture(e.pointerId); } catch (err) {}
 });
 window.addEventListener('pointermove', (e) => {
-  if (!dragging) return;
+  if (!dragging) {
+    overAstro = canOrbit && hitAstro(e);
+    return;
+  }
   userYaw += (e.clientX - lastX) * 0.0016;
   userPitch += (e.clientY - lastY) * 0.0016;
   userPitch = Math.max(-1.1, Math.min(1.1, userPitch));
@@ -244,7 +257,7 @@ const tick = (now) => {
   canOrbit = settle > 0.5 && (window.kimberleyEnd || 0) < 0.001;
   if (!canOrbit) dragging = false;
   astroCanvas.style.pointerEvents = canOrbit ? 'auto' : 'none';
-  astroCanvas.style.cursor = canOrbit ? (dragging ? 'grabbing' : 'grab') : 'default';
+  astroCanvas.style.cursor = dragging ? 'grabbing' : (canOrbit && overAstro ? 'grab' : 'default');
   if (!dragging) {
     const back = Math.min(1, dt * 0.7);
     userYaw += (0 - userYaw) * back;
