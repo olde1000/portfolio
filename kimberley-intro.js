@@ -17,13 +17,29 @@
     spoken.textContent = texts.join(' ');
     root.appendChild(spoken);
 
-    lines.forEach(function (el) {
-        el.style.minHeight = el.getBoundingClientRect().height + 'px';
+    var glyphs = lines.map(function (el, i) {
+        var frag = document.createDocumentFragment();
+        var spans = texts[i].split('').map(function (ch) {
+            var s = document.createElement('span');
+            s.className = 'kimberley-intro-glyph';
+            s.textContent = ch;
+            frag.appendChild(s);
+            return s;
+        });
         el.setAttribute('aria-hidden', 'true');
         el.textContent = '';
+        el.appendChild(frag);
+        return spans;
     });
 
     var gone = false;
+    var cursor = null;
+
+    var setCursor = function (span) {
+        if (cursor) cursor.classList.remove('kimberley-intro-cursor');
+        cursor = span;
+        if (cursor) cursor.classList.add('kimberley-intro-cursor');
+    };
 
     var fadeWatcher = function () {
         if ((window.kimberleyScrollP || 0) < FADE_AT) return requestAnimationFrame(fadeWatcher);
@@ -31,16 +47,13 @@
         root.classList.add('kimberley-intro-gone');
     };
 
-    var finish = function () {
-        lines.forEach(function (el) { el.style.minHeight = ''; });
-        lines[lines.length - 1].classList.add('kimberley-intro-caret');
-    };
-
     requestAnimationFrame(fadeWatcher);
 
     if (calm.matches) {
-        lines.forEach(function (el, i) { el.textContent = texts[i]; });
-        finish();
+        glyphs.forEach(function (spans) {
+            spans.forEach(function (s) { s.classList.add('kimberley-intro-lit'); });
+        });
+        setCursor(glyphs[glyphs.length - 1][glyphs[glyphs.length - 1].length - 1]);
         return;
     }
 
@@ -48,15 +61,14 @@
 
     var typeStep = function () {
         if (gone) return;
-        var el = lines[li], text = texts[li];
+        var spans = glyphs[li], text = texts[li];
 
-        if (ci === 0) el.classList.add('kimberley-intro-caret');
+        spans[ci].classList.add('kimberley-intro-lit');
+        setCursor(spans[ci]);
+        ci++;
 
-        el.textContent = text.slice(0, ++ci);
-
-        if (ci >= text.length) {
-            el.classList.remove('kimberley-intro-caret');
-            if (++li >= lines.length) return finish();
+        if (ci >= spans.length) {
+            if (++li >= glyphs.length) return;
             ci = 0;
             return setTimeout(typeStep, PAUSE_LINE);
         }
