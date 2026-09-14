@@ -1,5 +1,5 @@
 (function () {
-    var ORBIT_TURNS = 0.5, SCROLL_RATE = 0.25, SCROLL_SMOOTH = 10, END_DUR = 6.0, ROCKET_DUR = 10.0, OUTRO_DUR = 6.0;
+    var ORBIT_TURNS = 0.5, SCROLL_RATE = 0.115, SCROLL_SMOOTH = 10, END_DUR = 6.0, ROCKET_DUR = 10.0, OUTRO_DUR = 6.0;
 
     var endT = 0, rocketT = 0, outroT = -1, last = null;
     var launched = false, engaged = false, chaseP = 0, easedP = 0;
