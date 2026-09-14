@@ -9,6 +9,8 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const scene = new THREE.Scene();
 window.kimberleyScene = scene;
+window.kimberleyRenderer = renderer;
+const present = () => (window.kimberleyPresent || renderer.render.bind(renderer))(scene, camera);
 const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 100);
 window.kimberleyCamera = camera;
 camera.position.set(0, 0, 6);
@@ -220,7 +222,7 @@ const tick = (now) => {
   const dt = lastNow === null ? 0.016 : Math.min((now - lastNow) / 1000, 0.05);
   lastNow = now;
   requestAnimationFrame(tick);
-  if (!astro) { if ((window.kimberleyJp || 0) >= 0.08) renderer.render(scene, camera); return; }
+  if (!astro) { if ((window.kimberleyJp || 0) >= 0.08) present(); return; }
 
   const pos = window.kimberleyJp || 0;
   if (pos < 0.08) { renderer.clear(); return; }
@@ -525,6 +527,6 @@ const tick = (now) => {
   setOpacity(op);
   astro.visible = op > 0.001;
 
-  renderer.render(scene, camera);
+  present();
 };
 requestAnimationFrame(tick);

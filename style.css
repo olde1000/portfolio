@@ -44,16 +44,6 @@ body.kimberley-is-locked {
     display: block;
 }
 
-.kimberley-shockwave {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2;
-    display: block;
-    pointer-events: none;
-}
-
 .kimberley-fire-wash {
     position: fixed;
     inset: 0;
