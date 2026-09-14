@@ -4,8 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Olivier</title>
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+    </script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<div class="space" id="space">
+    <canvas class="space-gl" id="spaceGL" aria-hidden="true"></canvas>
+    <div class="space-scroll" id="spaceScroll">
+        <div class="space-spacer" id="spaceSpacer"></div>
+    </div>
+    <div class="space-captions" id="spaceCaptions"></div>
+</div>
+
+<script type="module" src="space.js"></script>
+
 </body>
 </html>
