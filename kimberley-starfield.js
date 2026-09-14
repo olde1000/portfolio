@@ -12,11 +12,13 @@
         { n: 34,  rate: 0.86, size: 2.3, alpha: 0.92, drift: 7.2 }
     ];
     var PAN_X = 96, PAN_Y = 46, MARGIN = 140;
+    var MOUSE_X = 78, MOUSE_Y = 44, MOUSE_EASE = 3.2;
     var WARM = 0.16;
 
     var W = 0, H = 0, DPR = 1, FW = 0, FH = 0;
     var layers = [];
-    var t0 = null;
+    var t0 = null, last = null;
+    var mx = 0, my = 0;
 
     var build = function () {
         FW = W + MARGIN * 2;
@@ -54,19 +56,27 @@
 
     var frame = function (now) {
         requestAnimationFrame(frame);
-        if (t0 === null) t0 = now;
+        if (t0 === null) { t0 = now; last = now; }
         var t = (now - t0) / 1000;
+        var dt = Math.min((now - last) / 1000, 0.05);
+        last = now;
 
         var still = calm.matches;
         var az = still ? 0 : (window.kimberleyScrollAz || 0);
         var sp = still ? 0 : (window.kimberleyScrollP || 0);
 
+        if (!still) {
+            var k = Math.min(1, dt * MOUSE_EASE);
+            mx += (((window.kimberleyMouseX == null ? 0.5 : window.kimberleyMouseX) - 0.5) - mx) * k;
+            my += (((window.kimberleyMouseY == null ? 0.5 : window.kimberleyMouseY) - 0.5) - my) * k;
+        }
+
         ctx.clearRect(0, 0, W, H);
 
         for (var l = 0; l < layers.length; l++) {
             var spec = layers[l].spec, stars = layers[l].stars;
-            var ox = az * spec.rate * PAN_X + (still ? 0 : t * spec.drift);
-            var oy = sp * spec.rate * PAN_Y;
+            var ox = az * spec.rate * PAN_X + (still ? 0 : t * spec.drift) + mx * spec.rate * MOUSE_X;
+            var oy = sp * spec.rate * PAN_Y + my * spec.rate * MOUSE_Y;
 
             for (var i = 0; i < stars.length; i++) {
                 var s = stars[i];
