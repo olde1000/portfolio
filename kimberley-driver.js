@@ -13,7 +13,7 @@
     function engage() {
         if (engaged) return;
         engaged = true;
-        document.body.classList.add('is-engaged');
+        document.body.classList.add('kimberley-is-engaged');
     }
 
     ['wheel', 'touchmove', 'scroll'].forEach(function (name) {
@@ -72,7 +72,7 @@
                 window.kimberleyScrollAz = scrollAz;
                 if (sp >= 0.999) {
                     launched = true;
-                    document.body.classList.add('is-locked');
+                    document.body.classList.add('kimberley-is-locked');
                 }
             }
         }

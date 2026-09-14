@@ -21,16 +21,16 @@ body {
     overscroll-behavior: none;
 }
 
-body.is-locked {
+body.kimberley-is-locked {
     overflow: hidden;
 }
 
-.scroll-track {
+.kimberley-scroll-track {
     height: 500vh;
     pointer-events: none;
 }
 
-.opening {
+.kimberley-opening {
     position: fixed;
     left: 50%;
     bottom: clamp(32px, 7vh, 72px);
@@ -42,10 +42,10 @@ body.is-locked {
     gap: 14px;
     pointer-events: none;
     opacity: 0;
-    animation: opening-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) 1.8s forwards;
+    animation: kimberley-opening-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) 1.8s forwards;
 }
 
-.opening-cue {
+.kimberley-opening-cue {
     margin: 0;
     font-size: 0.6875rem;
     font-weight: 600;
@@ -54,36 +54,36 @@ body.is-locked {
     color: #e8e4dd;
 }
 
-.opening-rule {
+.kimberley-opening-rule {
     width: 1px;
     height: 46px;
     background: linear-gradient(to bottom, rgba(232, 228, 221, 0.7), rgba(232, 228, 221, 0));
     transform-origin: top;
-    animation: opening-pull 2.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+    animation: kimberley-opening-pull 2.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
-body.is-engaged .opening {
+body.kimberley-is-engaged .kimberley-opening {
     animation: none;
     opacity: 0;
     transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes opening-in {
+@keyframes kimberley-opening-in {
     to { opacity: 1; }
 }
 
-@keyframes opening-pull {
+@keyframes kimberley-opening-pull {
     0%   { transform: scaleY(0); opacity: 0; }
     35%  { transform: scaleY(1); opacity: 1; }
     100% { transform: scaleY(1) translateY(46px); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .opening {
+    .kimberley-opening {
         animation-delay: 0s;
         animation-duration: 0.01s;
     }
-    .opening-rule {
+    .kimberley-opening-rule {
         animation: none;
         opacity: 0.7;
     }
@@ -108,7 +108,7 @@ body.is-engaged .opening {
     pointer-events: none;
 }
 
-.sr-only {
+.kimberley-sr-only {
     position: absolute;
     width: 1px;
     height: 1px;
