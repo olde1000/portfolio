@@ -1,8 +1,8 @@
 (function () {
-    var ORBIT_TURNS = 0.5, SCROLL_EASE = 1.8, END_DUR = 6.0, ROCKET_DUR = 10.0, OUTRO_DUR = 6.0;
+    var ORBIT_TURNS = 0.5, SCROLL_RATE = 0.25, SCROLL_SMOOTH = 10, END_DUR = 6.0, ROCKET_DUR = 10.0, OUTRO_DUR = 6.0;
 
     var endT = 0, rocketT = 0, outroT = -1, last = null;
-    var launched = false, engaged = false, easedP = 0;
+    var launched = false, engaged = false, chaseP = 0, easedP = 0;
 
     window.kimberleyScrollAz = 0;
     window.kimberleyScrollP = 0;
@@ -69,7 +69,9 @@
             var span = document.documentElement.scrollHeight - window.innerHeight;
             if (span > 4) {
                 var sp = Math.min(1, Math.max(0, window.scrollY / span));
-                easedP += (sp - easedP) * Math.min(1, dt * SCROLL_EASE);
+                var step = SCROLL_RATE * dt;
+                chaseP += Math.max(-step, Math.min(step, sp - chaseP));
+                easedP += (chaseP - easedP) * Math.min(1, dt * SCROLL_SMOOTH);
                 window.kimberleyScrollP = easedP;
                 window.kimberleyScrollAz = easedP * Math.PI * 2 * ORBIT_TURNS;
                 if (easedP >= 0.995) {
