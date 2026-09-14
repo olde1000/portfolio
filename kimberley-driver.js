@@ -1,5 +1,5 @@
 (function () {
-    var ORBIT_TURNS = 1.15, END_DUR = 6.0, ROCKET_DUR = 10.0, OUTRO_DUR = 6.0;
+    var ORBIT_TURNS = 0.5, END_DUR = 6.0, ROCKET_DUR = 10.0, OUTRO_DUR = 6.0;
 
     var endT = 0, rocketT = 0, outroT = -1, last = null;
     var launched = false, engaged = false, scrollAz = 0;
