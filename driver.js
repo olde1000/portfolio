@@ -6,6 +6,10 @@
 
     window.kimberleyScrollAz = 0;
 
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+    window.addEventListener('load', function () { window.scrollTo(0, 0); });
+
     window.kimberleyJp = 1.0;
     window.kimberleyMouseX = 0.5;
     window.kimberleyMouseY = 0.5;
@@ -49,12 +53,14 @@
 
         if (!launched) {
             var span = document.documentElement.scrollHeight - window.innerHeight;
-            var sp = span > 0 ? Math.min(1, Math.max(0, window.scrollY / span)) : 1;
-            scrollAz += (sp * Math.PI * 2 * ORBIT_TURNS - scrollAz) * Math.min(1, dt * 4.0);
-            window.kimberleyScrollAz = scrollAz;
-            if (sp >= 0.999) {
-                launched = true;
-                document.body.classList.add('is-locked');
+            if (span > 4) {
+                var sp = Math.min(1, Math.max(0, window.scrollY / span));
+                scrollAz += (sp * Math.PI * 2 * ORBIT_TURNS - scrollAz) * Math.min(1, dt * 4.0);
+                window.kimberleyScrollAz = scrollAz;
+                if (sp >= 0.999) {
+                    launched = true;
+                    document.body.classList.add('is-locked');
+                }
             }
         }
 
