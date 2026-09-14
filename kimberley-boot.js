@@ -1,174 +1,118 @@
-(function () {
-    var root = document.getElementById('kimberleyBoot');
-    var cv = document.getElementById('kimberleyBootStars');
-    var mark = document.getElementById('kimberleyBootMark');
-    if (!root || !cv || !mark) return;
+import * as THREE from 'three';
 
-    var STARS = 240;
-    var MIN_SHOW = 1500, HOLD = 1250, BLOOM = 1300, GIVE_UP = 9000, HANDOVER = 0.40;
-    var APEX_LOW = 0.86, APEX_HIGH = 0.62, APEX_GONE = 1.40;
-    var CURVE_FLAT = 3.4, CURVE_NEAR = 1.15;
-    var RIM_MIN = 18, RIM_MAX = 104;
-    var DRIFT = 0.006, LIFT = 0.42;
-    var WEIGHT_LO = 130, WEIGHT_HI = 560;
-    var TRACK_LO = 0.54, TRACK_HI = 0.19;
+const FLIGHT = 6.0, GATE = 0.84, BLEND = 0.76, GIVE_UP = 11.0;
+const FAR_R = 52, NEAR_R = 6.2;
+const FAR_EL = 0.40, NEAR_EL = 0.02;
+const SWEEP = 0.85, BANK = 0.16;
+const VEIL_IN = 1.6;
+const MARK_UP = 0.9, MARK_HOLD = 2.4, MARK_OUT = 4.3, MARK_GONE = 5.5;
+const WEIGHT_LO = 140, WEIGHT_HI = 560;
+const TRACK_LO = 0.58, TRACK_HI = 0.20;
 
-    var ASSETS = {
-        'astronaut': 1211932,
-        'assets/models/earth.glb': 94712,
-        'assets/models/rocket.glb': 1175156
-    };
+const ASSETS = {
+  'astronaut': 1211932,
+  'assets/models/earth.glb': 94712,
+  'assets/models/rocket.glb': 1175156
+};
 
-    var ctx = cv.getContext('2d');
-    var calm = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (calm.matches) { MIN_SHOW = 300; HOLD = 250; BLOOM = 450; }
+const root = document.getElementById('kimberleyBoot');
+const mark = document.getElementById('kimberleyBootMark');
+const renderer = window.kimberleyRenderer;
 
-    var W = 0, H = 0, DPR = 1, CX = 0;
-    var sky = [];
-    var got = {}, total = 0;
-    for (var key in ASSETS) total += ASSETS[key];
+if (root && mark && renderer) {
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const span = calm.matches ? 1.4 : FLIGHT;
 
-    var born = performance.now(), readyAt = 0, bloomAt = 0;
-    var shown = 0, handed = false;
+  let total = 0;
+  const got = {};
+  for (const k in ASSETS) total += ASSETS[k];
 
-    document.body.classList.add('kimberley-is-locked');
+  window.kimberleyLabsBytes = (name, loaded, done) => {
+    if (!(name in ASSETS)) return;
+    got[name] = Math.min(ASSETS[name], done ? (loaded / Math.max(done, 1)) * ASSETS[name] : loaded);
+  };
 
-    var sprite = (function () {
-        var S = 32, C = S / 2;
-        var c = document.createElement('canvas');
-        c.width = c.height = S;
-        var g = c.getContext('2d');
-        var grd = g.createRadialGradient(C, C, 0, C, C, C);
-        grd.addColorStop(0.00, 'rgba(255,255,255,1)');
-        grd.addColorStop(0.20, 'rgba(255,255,255,0.75)');
-        grd.addColorStop(0.50, 'rgba(255,255,255,0.14)');
-        grd.addColorStop(1.00, 'rgba(255,255,255,0)');
-        g.fillStyle = grd;
-        g.fillRect(0, 0, S, S);
-        return c;
-    })();
+  const progress = () => {
+    let sum = 0;
+    for (const k in got) sum += got[k];
+    return Math.min(1, sum / total);
+  };
 
-    for (var i = 0; i < STARS; i++) {
-        sky.push({
-            x: Math.random(),
-            y: Math.random(),
-            sz: 0.7 + Math.pow(Math.random(), 2.2) * 2.4,
-            at: Math.pow(i / STARS, 1.4) * 0.9,
-            warm: Math.random() < 0.13,
-            ph: Math.random() * 6.2832,
-            tw: 0.4 + Math.random() * 1.3
-        });
+  document.body.classList.add('kimberley-is-locked');
+
+  const eye = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+  const aim = new THREE.Vector3();
+  const seat = new THREE.Vector3();
+  const start = Math.random() * Math.PI * 2;
+
+  const smooth = (v) => (v <= 0 ? 0 : v >= 1 ? 1 : v * v * (3 - 2 * v));
+  const glide = (v) => (v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2);
+  const band = (v, a, b) => smooth((v - a) / (b - a));
+  const mix = (a, b, v) => a + (b - a) * v;
+
+  let t = 0, held = 0, done = false, handed = false;
+
+  const fly = (dt, cam) => {
+    const ready = progress() >= 0.999;
+    held += dt;
+    if (t < GATE || ready || held >= GIVE_UP) t = Math.min(1, t + dt / span);
+
+    const e = glide(t);
+    const radius = mix(FAR_R, NEAR_R, e);
+    const el = mix(FAR_EL, NEAR_EL, e);
+    const az = start + SWEEP * e;
+    const ce = Math.cos(el);
+
+    seat.set(Math.sin(az) * ce * radius, Math.sin(el) * radius, Math.cos(az) * ce * radius);
+    aim.set(0, mix(0.8, 0, e), 0);
+
+    eye.fov = cam.fov;
+    eye.aspect = cam.aspect;
+    eye.near = cam.near;
+    eye.far = cam.far;
+    eye.updateProjectionMatrix();
+
+    eye.position.copy(seat);
+    eye.up.set(Math.sin(BANK * (1 - e)), Math.cos(BANK * (1 - e)), 0);
+    eye.lookAt(aim);
+
+    const merge = band(t, BLEND, 1);
+    if (merge > 0) {
+      cam.updateMatrixWorld();
+      eye.position.lerp(cam.position, merge);
+      eye.quaternion.slerp(cam.quaternion, merge);
     }
+    eye.updateMatrixWorld();
 
-    var resize = function () {
-        DPR = Math.min(window.devicePixelRatio || 1, 1.5);
-        W = window.innerWidth; H = window.innerHeight;
-        CX = W * 0.5;
-        cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
-        cv.style.width = W + 'px'; cv.style.height = H + 'px';
-        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    };
+    const secs = t * span;
+    root.style.setProperty('--kimberley-boot-veil', (1 - band(secs, 0, VEIL_IN)).toFixed(3));
 
-    window.kimberleyLabsBytes = function (name, loaded, done) {
-        if (!(name in ASSETS)) return;
-        got[name] = Math.min(ASSETS[name], done ? (loaded / Math.max(done, 1)) * ASSETS[name] : loaded);
-    };
+    const rise = band(secs, MARK_UP, MARK_HOLD);
+    const gone = band(secs, MARK_OUT, MARK_GONE);
+    const st = mark.style;
+    st.setProperty('--kimberley-boot-wght', Math.round(mix(WEIGHT_LO, WEIGHT_HI, rise)));
+    st.setProperty('--kimberley-boot-track', mix(TRACK_LO, TRACK_HI, rise).toFixed(3) + 'em');
+    st.setProperty('--kimberley-boot-lift', (rise * (1 - gone)).toFixed(3));
+    st.setProperty('--kimberley-boot-soft', (3.2 * (1 - rise) + gone * 7).toFixed(2) + 'px');
+    st.setProperty('--kimberley-boot-slide', (mix(26, 0, rise) - gone * 34).toFixed(1) + 'px');
 
-    var progress = function () {
-        var sum = 0;
-        for (var k in got) sum += got[k];
-        return Math.min(1, sum / total);
-    };
+    if (t >= 1 && !handed) {
+      handed = true;
+      done = true;
+      window.kimberleyBooted = true;
+      root.remove();
+    }
+    return done ? cam : eye;
+  };
 
-    var expoOut = function (v) { return v >= 1 ? 1 : 1 - Math.pow(2, -10 * v); };
-    var sstep = function (v) { v = v < 0 ? 0 : v > 1 ? 1 : v; return v * v * (3 - 2 * v); };
-    var mix = function (a, b, v) { return a + (b - a) * v; };
+  const prior = window.kimberleyPresent;
+  const draw = prior || ((s, c) => renderer.render(s, c));
+  let last = null;
 
-    var paint = function (p, bloom, now) {
-        var veil = bloom <= 0 ? 1 : 1 - sstep((bloom - HANDOVER) / (1 - HANDOVER));
-        root.style.setProperty('--kimberley-boot-veil', veil.toFixed(3));
-
-        var apex = H * (bloom > 0 ? mix(APEX_HIGH, APEX_GONE, bloom) : mix(APEX_LOW, APEX_HIGH, sstep(p)));
-        var radius = W * mix(CURVE_FLAT, CURVE_NEAR, sstep(p));
-        var cy = apex + radius;
-        var rim = mix(RIM_MIN, RIM_MAX, sstep(p)) * (1 - bloom * 0.55);
-        var heat = (0.22 + 0.78 * sstep(p)) * (1 - sstep(Math.max(0, (bloom - 0.25) / 0.75)));
-        var climb = (LIFT * sstep(p) + 1.7 * Math.pow(bloom, 2.1)) * H;
-
-        ctx.clearRect(0, 0, W, H);
-
-        ctx.globalCompositeOperation = 'lighter';
-        for (var i = 0; i < STARS; i++) {
-            var s = sky[i];
-            if (p < s.at) continue;
-            var y = (s.y * H - climb - now * DRIFT) % H;
-            if (y < 0) y += H;
-            if (y > apex - 4) continue;
-            var a = Math.min(1, (p - s.at) / 0.12) * (0.55 + 0.45 * Math.sin(now * 0.001 * s.tw + s.ph));
-            a *= sstep(Math.min(1, (apex - y) / 90));
-            if (a < 0.005) continue;
-            ctx.globalAlpha = a;
-            var r = s.sz;
-            ctx.drawImage(sprite, s.x * W - r, y - r, r * 2, r * 2);
-        }
-        ctx.globalAlpha = 1;
-        ctx.globalCompositeOperation = 'source-over';
-
-        ctx.beginPath();
-        ctx.arc(CX, cy, radius, 0, 6.2832);
-        ctx.fillStyle = '#01020a';
-        ctx.fill();
-
-        ctx.globalCompositeOperation = 'lighter';
-        var band = ctx.createRadialGradient(CX, cy, Math.max(0, radius - rim * 0.55), CX, cy, radius + rim * 2.6);
-        band.addColorStop(0.00, 'rgba(96,150,240,0)');
-        band.addColorStop(0.40, 'rgba(150,196,255,' + (heat * 0.30).toFixed(3) + ')');
-        band.addColorStop(0.52, 'rgba(226,240,255,' + (heat * 0.92).toFixed(3) + ')');
-        band.addColorStop(0.62, 'rgba(120,175,255,' + (heat * 0.34).toFixed(3) + ')');
-        band.addColorStop(1.00, 'rgba(58,110,230,0)');
-        ctx.fillStyle = band;
-        ctx.fillRect(0, 0, W, H);
-
-        ctx.beginPath();
-        ctx.arc(CX, cy, radius, Math.PI * 1.18, Math.PI * 1.82);
-        ctx.strokeStyle = 'rgba(236,246,255,' + (heat * 0.85).toFixed(3) + ')';
-        ctx.lineWidth = 1.1;
-        ctx.stroke();
-        ctx.globalCompositeOperation = 'source-over';
-
-        var vig = ctx.createRadialGradient(CX, H * 0.52, H * 0.2, CX, H * 0.52, H * 1.05);
-        vig.addColorStop(0, 'rgba(5,7,13,0)');
-        vig.addColorStop(1, 'rgba(5,7,13,0.8)');
-        ctx.fillStyle = vig;
-        ctx.fillRect(0, 0, W, H);
-
-        var st = mark.style;
-        st.setProperty('--kimberley-boot-wght', Math.round(mix(WEIGHT_LO, WEIGHT_HI, p)));
-        st.setProperty('--kimberley-boot-track', mix(TRACK_LO, TRACK_HI, p).toFixed(3) + 'em');
-        st.setProperty('--kimberley-boot-lift', Math.min(1, p * 2.4).toFixed(3));
-        st.setProperty('--kimberley-boot-soft', (2.4 * (1 - p) + bloom * 6).toFixed(2) + 'px');
-        st.setProperty('--kimberley-boot-rise', (-bloom * H * 0.22).toFixed(1) + 'px');
-    };
-
-    var frame = function (now) {
-        var p = progress();
-        var age = now - born;
-
-        if (!readyAt && p >= 0.999 && age >= MIN_SHOW) readyAt = now;
-        if (!readyAt && age >= GIVE_UP) { p = 1; readyAt = now; }
-        if (readyAt && !bloomAt && now - readyAt >= HOLD) bloomAt = now;
-
-        var bloom = bloomAt ? Math.min(1, expoOut((now - bloomAt) / BLOOM)) : 0;
-        shown += (Math.max(shown, p) - shown) * 0.09;
-
-        paint(shown, bloom, now);
-
-        if (bloom >= HANDOVER && !handed) { handed = true; window.kimberleyBooted = true; }
-        if (bloom >= 1) { root.remove(); return; }
-        requestAnimationFrame(frame);
-    };
-
-    resize();
-    window.addEventListener('resize', resize);
-    requestAnimationFrame(frame);
-})();
+  window.kimberleyPresent = (scene, cam) => {
+    const now = performance.now();
+    const dt = last === null ? 0 : Math.min((now - last) / 1000, 0.05);
+    last = now;
+    draw(scene, done ? cam : fly(dt, cam));
+  };
+}

@@ -58,33 +58,27 @@ body.kimberley-is-locked {
     position: fixed;
     inset: 0;
     z-index: 20;
-    background: #05070d;
-    opacity: var(--kimberley-boot-veil, 1);
     pointer-events: none;
-}
-
-.kimberley-boot-stars {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    display: block;
+    background:
+        radial-gradient(ellipse at 50% 50%, rgba(5, 7, 13, 0) 30%, rgba(5, 7, 13, 0.92) 100%),
+        #05070d;
+    opacity: var(--kimberley-boot-veil, 1);
 }
 
 .kimberley-boot-mark {
     position: absolute;
     left: 50%;
-    top: 34%;
+    top: 46%;
     margin: 0;
     font-size: clamp(1.375rem, 4vw, 3.5rem);
-    font-weight: var(--kimberley-boot-wght, 130);
-    letter-spacing: var(--kimberley-boot-track, 0.54em);
-    text-indent: var(--kimberley-boot-track, 0.54em);
+    font-weight: var(--kimberley-boot-wght, 140);
+    letter-spacing: var(--kimberley-boot-track, 0.58em);
+    text-indent: var(--kimberley-boot-track, 0.58em);
     line-height: 1;
     color: var(--kimberley-bone);
     opacity: var(--kimberley-boot-lift, 0);
-    filter: blur(var(--kimberley-boot-soft, 2.4px));
-    transform: translate(-50%, calc(-50% + var(--kimberley-boot-rise, 0px)));
+    filter: blur(var(--kimberley-boot-soft, 3.2px));
+    transform: translate(-50%, calc(-50% + var(--kimberley-boot-slide, 26px)));
     white-space: nowrap;
 }
 
