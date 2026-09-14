@@ -190,7 +190,7 @@ body.kimberley-is-locked {
 
 .kimberley-panel-stage {
     transform-style: preserve-3d;
-    transform-origin: 80% 50%;
+    transform-origin: 50% 50%;
     will-change: transform;
 }
 
@@ -207,9 +207,6 @@ body.kimberley-is-locked {
     left: clamp(32px, 13vw, 220px);
 }
 
-.kimberley-panel:nth-of-type(2) .kimberley-panel-stage {
-    transform-origin: 20% 50%;
-}
 
 .kimberley-panel p {
     margin: 0 0 0.75em;
