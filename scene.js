@@ -264,14 +264,14 @@ const tick = (now) => {
   const spaceX = settle * -1.6;
   holder.position.z = flyZ + flightZ * enter + (1.0 - flightZ) * settle + (Math.sin(t * 2.0) * 0.5 + Math.sin(t * 1.3 + 1.0) * 0.3) * drift;
   holder.position.y = flyY + Math.sin(t * 3.2 + 1.0) * 0.22 * flyMove + (Math.sin(t * 1.8) * 0.45 + Math.sin(t * 1.1 + 0.6) * 0.25) * drift + (Math.sin(t * 0.6) * 0.10 + Math.sin(t * 0.23 + 1.3) * 0.05) * idle + wBendY * 0.30;
-  holder.position.x = flyX + Math.sin(t * 4.0) * 0.30 * flyMove + (Math.sin(t * 2.6) * 1.1 + Math.sin(t * 1.5 + 2.0) * 0.5) * drift + mx * 0.5 + Math.sin(t * 0.4 + 1.0) * 0.10 * idle + wBendX * 0.5 + spaceX;
+  holder.position.x = flyX + Math.sin(t * 4.0) * 0.30 * flyMove + (Math.sin(t * 2.6) * 1.1 + Math.sin(t * 1.5 + 2.0) * 0.5) * drift + Math.sin(t * 0.4 + 1.0) * 0.10 * idle + wBendX * 0.5 + spaceX;
   holder.position.x += kickX;
   holder.position.y += kickY;
 
   const backAmt = enter * (1 - settle);
   const baseYaw = ctrlAstro.face + Math.PI * (backAmt + flyBack);
-  holder.rotation.y = baseYaw + mx * 0.30 + flyMove * Math.sin(t * 2.2) * 0.30 + spin * (Math.sin(t * 2.4) * 1.1 + Math.sin(t * 1.25) * 0.6) + userYaw * settle + Math.sin(t * 0.35) * 0.06 * idle + wBendX * 0.12;
-  holder.rotation.x = my * 0.18 + Math.sin(t * 0.8) * 0.03 + flyMove * Math.sin(t * 2.8) * 0.38 + spin * (Math.sin(t * 3.2) * 1.5 + Math.sin(t * 2.1 + 0.7) * 0.6) + userPitch * settle + Math.sin(t * 0.5 + 2.0) * 0.05 * idle;
+  holder.rotation.y = baseYaw + flyMove * Math.sin(t * 2.2) * 0.30 + spin * (Math.sin(t * 2.4) * 1.1 + Math.sin(t * 1.25) * 0.6) + userYaw * settle + Math.sin(t * 0.35) * 0.06 * idle + wBendX * 0.12;
+  holder.rotation.x = Math.sin(t * 0.8) * 0.03 + flyMove * Math.sin(t * 2.8) * 0.38 + spin * (Math.sin(t * 3.2) * 1.5 + Math.sin(t * 2.1 + 0.7) * 0.6) + userPitch * settle + Math.sin(t * 0.5 + 2.0) * 0.05 * idle;
   holder.rotation.z = Math.sin(t * 0.55) * 0.02 + flyMove * (Math.sin(t * 3.5) * 0.5 + 0.35) + spin * (Math.sin(t * 1.8) * 2.2 + Math.cos(t * 2.9) * 1.1) + Math.sin(t * 0.28) * 0.07 * idle + wRoll * 0.5 + (1 - flyE) * 0.5;
 
   const cu = window.kimberleyCloseIn || 0;
