@@ -2,13 +2,26 @@
     var ORBIT_TURNS = 1.15, END_DUR = 6.0, ROCKET_DUR = 10.0, OUTRO_DUR = 6.0;
 
     var endT = 0, rocketT = 0, outroT = -1, last = null;
-    var launched = false, scrollAz = 0;
+    var launched = false, engaged = false, scrollAz = 0;
 
     window.kimberleyScrollAz = 0;
 
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
     window.addEventListener('load', function () { window.scrollTo(0, 0); });
+
+    function engage() {
+        if (engaged) return;
+        engaged = true;
+        document.body.classList.add('is-engaged');
+    }
+
+    ['wheel', 'touchmove', 'scroll'].forEach(function (name) {
+        window.addEventListener(name, engage, { passive: true });
+    });
+    window.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') engage();
+    });
 
     window.kimberleyJp = 1.0;
     window.kimberleyMouseX = 0.5;
@@ -51,7 +64,7 @@
         window.kimberleyMouseX += (tx - window.kimberleyMouseX) * k;
         window.kimberleyMouseY += (ty - window.kimberleyMouseY) * k;
 
-        if (!launched) {
+        if (!launched && engaged) {
             var span = document.documentElement.scrollHeight - window.innerHeight;
             if (span > 4) {
                 var sp = Math.min(1, Math.max(0, window.scrollY / span));
