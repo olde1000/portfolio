@@ -10,13 +10,13 @@
     var live = false, seenPulse = 0, last = null;
 
     var strike = function () {
-        var pulse = window.kimberleyClickPulse || 0;
+        var pulse = window.kimberleyKickPulse || 0;
         if (pulse === seenPulse) return;
         seenPulse = pulse;
         if (calm.matches || (window.kimberleyEnd || 0) >= 0.001) return;
 
-        var dx = 0.5 - (window.kimberleyClickNX == null ? 0.5 : window.kimberleyClickNX);
-        var dy = 0.5 - (window.kimberleyClickNY == null ? 0.5 : window.kimberleyClickNY);
+        var dx = (window.kimberleyKickNX == null ? 0.5 : window.kimberleyKickNX) - 0.30;
+        var dy = (window.kimberleyKickNY == null ? 0.5 : window.kimberleyKickNY) - 0.35;
         var len = Math.hypot(dx, dy) + 1e-3;
         vx += (dx / len) * IMPULSE;
         vy += (dy / len) * IMPULSE;

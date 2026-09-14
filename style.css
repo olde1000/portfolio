@@ -88,7 +88,7 @@ body.kimberley-is-locked {
     transform: translateY(-50%);
     z-index: 4;
     width: 30rem;
-    width: min(30rem, 36vw);
+    width: min(34rem, 40vw);
     pointer-events: none;
     transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -98,8 +98,8 @@ body.kimberley-is-locked {
 }
 
 .kimberley-intro p {
-    margin: 0 0 0.9em;
-    font-size: clamp(0.875rem, 1.05vw, 1rem);
+    margin: 0 0 0.85em;
+    font-size: clamp(1.0625rem, 1.5vw, 1.375rem);
     font-weight: 350;
     line-height: 1.62;
     color: var(--kimberley-bone);
@@ -112,8 +112,8 @@ body.kimberley-is-locked {
 }
 
 .kimberley-intro-cue {
-    margin-top: 1.6em;
-    font-size: 0.75rem;
+    margin-top: 1.5em;
+    font-size: 0.8125rem;
     font-weight: 400;
     letter-spacing: 0.08em;
     opacity: 0.6;
