@@ -55,7 +55,9 @@ if (renderer) {
         float ca = rim * ${CHROMA.toFixed(4)};
         s.r = texture2D(u_tex, suv + dir * ca).r;
         s.b = texture2D(u_tex, suv - dir * ca).b;
-        s.rgb += vec3(0.70, 0.84, 1.0) * rim * ${RIM.toFixed(2)};
+        float glow = rim * ${RIM.toFixed(2)};
+        s.rgb += vec3(0.70, 0.84, 1.0) * glow;
+        s.a = min(1.0, s.a + glow);
       }
 
       gl_FragColor = s;
