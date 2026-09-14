@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 
 const SHELLS = [
-  { n: 260,  near: 20, far: 40, size: 0.120, opacity: 0.95, spin: 0.0042 },
-  { n: 620,  near: 40, far: 66, size: 0.140, opacity: 0.72, spin: 0.0024 },
-  { n: 1500, near: 66, far: 95, size: 0.150, opacity: 0.52, spin: 0.0011 }
+  { n: 460,  near: 20, far: 40, size: 0.120, opacity: 0.95, spin: 0.0042 },
+  { n: 1150, near: 40, far: 66, size: 0.140, opacity: 0.72, spin: 0.0024 },
+  { n: 2900, near: 66, far: 95, size: 0.150, opacity: 0.52, spin: 0.0011 }
 ];
 const COOL = new THREE.Color(0xcfe0ff);
 const WARM = new THREE.Color(0xffd6aa);
