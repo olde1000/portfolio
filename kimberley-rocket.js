@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const TRIGGER = 0.26;
-const DIST = 72, LATERAL = 62, RISE = 9, DROP = -4;
-const DURATION = 8.0, SCALE = 1.05;
+const TRIGGER = 0.12, SCROLL_SPAN = 0.72;
+const DIST = 72, LATERAL = 58, RISE = 9, DROP = -4;
+const DURATION = 6.5, SCALE = 1.05;
 const FADE_IN = 0.10, FADE_OUT = 0.86;
 const SPIN = 0.24;
 
@@ -68,6 +68,13 @@ if (scene && camera) {
   const heading = new THREE.Vector3();
   const Y_UP = new THREE.Vector3(0, 1, 0);
 
+  const aim = () => {
+    camera.updateMatrixWorld();
+    camera.getWorldPosition(origin);
+    camera.matrixWorld.extractBasis(right, up, forward);
+    forward.negate();
+  };
+
   const at = (p, out) => out.copy(origin)
     .addScaledVector(forward, DIST)
     .addScaledVector(right, LATERAL * (1 - 2 * p))
@@ -79,10 +86,6 @@ if (scene && camera) {
   let flight = -1, done = false, last = null;
 
   const launch = () => {
-    camera.updateMatrixWorld();
-    camera.getWorldPosition(origin);
-    camera.matrixWorld.extractBasis(right, up, forward);
-    forward.negate();
     flight = 0;
     rig.visible = true;
   };
@@ -101,13 +104,15 @@ if (scene && camera) {
     }
 
     flight += dt;
-    const p = flight / DURATION;
+    const swept = ((window.kimberleyScrollP || 0) - TRIGGER) / SCROLL_SPAN;
+    const p = Math.max(flight / DURATION, swept);
     if (p >= 1 || (window.kimberleyEnd || 0) > 0.001) {
       rig.visible = false;
       done = true;
       return;
     }
 
+    aim();
     at(p, here);
     at(Math.min(1, p + 0.02), ahead);
     rig.position.copy(here);
