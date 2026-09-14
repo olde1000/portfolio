@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
-const WORD_FROM = 0.45, WORD_STEP = 0.10, WORD_DUR = 0.55;
-const CHROMA_DUR = 0.80, CHROMA_DROP = 0.62;
+const WORD_FROM = 0.18, WORD_STEP = 0.10, WORD_DUR = 0.55;
+const CHROMA_DUR = 0.70, CHROMA_DROP = 0.30;
 const CARD = 2.1, MARK_OUT = 3.1;
 const VEIL_FROM = 2.0, VEIL_TO = 3.3;
 const FLY_FROM = 2.9, FLY_TO = 7.6;
@@ -25,7 +25,10 @@ const mark = document.getElementById('kimberleyBootMark');
 const renderer = window.kimberleyRenderer;
 const scene = window.kimberleyScene;
 
-if (root && mark && renderer && scene) {
+if (!root || !mark || !renderer || !scene) {
+  if (root) root.remove();
+  window.kimberleyBooted = true;
+} else {
   const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
   const pace = calm.matches ? 4.0 : 1.0;
 

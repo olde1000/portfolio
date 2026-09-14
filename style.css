@@ -76,7 +76,7 @@ body.kimberley-is-locked {
     text-indent: var(--kimberley-boot-track, -0.018em);
     line-height: 1;
     color: #ffffff;
-    opacity: var(--kimberley-boot-lift, 1);
+    opacity: var(--kimberley-boot-lift, 0);
     filter: blur(var(--kimberley-boot-soft, 0px));
     transform: translate(-50%, -50%) scale(var(--kimberley-boot-wide, 1));
     white-space: nowrap;
@@ -96,8 +96,8 @@ body.kimberley-is-locked {
     transform: translateY(var(--kimberley-word-rise, 112%));
     opacity: var(--kimberley-word-in, 0);
     text-shadow:
-        0 var(--kimberley-word-drop, 0.62em) 0 rgba(255, 46, 96, var(--kimberley-word-chroma, 1)),
-        0 calc(-1 * var(--kimberley-word-drop, 0.62em)) 0 rgba(0, 194, 255, var(--kimberley-word-chroma, 1));
+        0 var(--kimberley-word-drop, 0.3em) 0 rgba(255, 46, 96, var(--kimberley-word-chroma, 0)),
+        0 calc(-1 * var(--kimberley-word-drop, 0.3em)) 0 rgba(0, 194, 255, var(--kimberley-word-chroma, 0));
 }
 
 @media (prefers-reduced-motion: reduce) {
