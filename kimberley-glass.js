@@ -22,6 +22,11 @@ if (renderer) {
     uniform vec2 u_clicks[${SLOTS}];
     uniform float u_ages[${SLOTS}];
 
+    vec3 kimberleyEncode(vec3 c) {
+      c = max(c, vec3(0.0));
+      return mix(c * 12.92, 1.055 * pow(c, vec3(0.41666)) - 0.055, step(vec3(0.0031308), c));
+    }
+
     void main() {
       vec2 uv = v_uv;
       float aspect = u_res.x / u_res.y;
@@ -57,7 +62,7 @@ if (renderer) {
         col += vec3(0.70, 0.84, 1.0) * rim * ${RIM.toFixed(2)};
       }
 
-      gl_FragColor = vec4(col, 1.0);
+      gl_FragColor = vec4(kimberleyEncode(col), 1.0);
     }
   `;
 
