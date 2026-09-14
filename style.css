@@ -77,15 +77,30 @@ body.kimberley-is-locked {
 .kimberley-boot-mark {
     position: relative;
     margin: 0;
-    font-size: clamp(1.75rem, 5vw, 4.5rem);
-    font-weight: var(--kimberley-boot-wght, 100);
-    letter-spacing: var(--kimberley-boot-track, 0.46em);
-    text-indent: var(--kimberley-boot-track, 0.46em);
+    font-size: clamp(1.5rem, 4.4vw, 4rem);
+    font-weight: var(--kimberley-boot-wght, 120);
+    letter-spacing: var(--kimberley-boot-track, 0.52em);
+    text-indent: var(--kimberley-boot-track, 0.52em);
     line-height: 1;
     color: var(--kimberley-bone);
-    opacity: var(--kimberley-boot-lift, 0.12);
+    opacity: var(--kimberley-boot-lift, 0);
+    filter: blur(var(--kimberley-boot-soft, 2.6px));
     transform: scale(var(--kimberley-boot-push, 1));
     white-space: nowrap;
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+    .kimberley-boot-mark {
+        color: transparent;
+        background-image: radial-gradient(
+            circle at 50% 50%,
+            #ffffff 0%,
+            #dce9ff var(--kimberley-boot-lit, 0%),
+            rgba(150, 180, 230, 0.16) calc(var(--kimberley-boot-lit, 0%) + 26%)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+    }
 }
 
 .kimberley-credit {
