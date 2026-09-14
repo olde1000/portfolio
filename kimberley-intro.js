@@ -63,7 +63,7 @@
 
         var ch = text.charAt(ci - 1);
         var wait = CHAR_MS + Math.random() * CHAR_JITTER;
-        if (ch === ',' || ch === '—') wait += PAUSE_PUNCT * 0.6;
+        if (ch === ',' || ch === ':') wait += PAUSE_PUNCT * 0.6;
         else if (ch === '.') wait += PAUSE_PUNCT;
         setTimeout(typeStep, wait);
     };
