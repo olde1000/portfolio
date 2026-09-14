@@ -184,8 +184,19 @@ body.kimberley-is-locked {
     width: min(30rem, 36vw);
     margin: 0;
     pointer-events: none;
+    perspective: 1100px;
+    will-change: opacity, filter;
+}
+
+.kimberley-panel-stage {
+    transform-style: preserve-3d;
     transform-origin: 80% 50%;
-    will-change: transform, opacity;
+    will-change: transform;
+}
+
+.kimberley-panel-glyph {
+    display: inline-block;
+    white-space: pre;
 }
 
 .kimberley-panel:nth-of-type(1) { top: 34%; }
@@ -194,11 +205,15 @@ body.kimberley-is-locked {
     top: 62%;
     right: auto;
     left: clamp(32px, 13vw, 220px);
+}
+
+.kimberley-panel:nth-of-type(2) .kimberley-panel-stage {
     transform-origin: 20% 50%;
 }
 
 .kimberley-panel p {
     margin: 0 0 0.75em;
+    transform-style: preserve-3d;
     font-size: clamp(0.875rem, 1.05vw, 1rem);
     font-weight: 350;
     line-height: 1.62;
