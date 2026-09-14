@@ -36,8 +36,6 @@
     var cursor = null;
     var held = true;
 
-    document.body.classList.add('kimberley-is-locked');
-
     var release = function () {
         if (!held) return;
         held = false;
@@ -92,5 +90,10 @@
         setTimeout(typeStep, wait);
     };
 
-    setTimeout(typeStep, START_DELAY);
+    var waitForBoot = function () {
+        if (!window.kimberleyBooted) return requestAnimationFrame(waitForBoot);
+        setTimeout(typeStep, START_DELAY);
+    };
+
+    waitForBoot();
 })();

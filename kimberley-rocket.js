@@ -89,7 +89,9 @@ if (scene && camera) {
     });
     blast.forEach((n) => { n.removeFromParent(); n.geometry.dispose(); });
     body.add(o);
-  }, undefined, (err) => console.warn('rocket load failed', err));
+  }, (e) => {
+    if (window.kimberleyLabsBytes) window.kimberleyLabsBytes('assets/models/rocket.glb', e.loaded, e.total);
+  }, (err) => console.warn('rocket load failed', err));
 
   const forward = new THREE.Vector3();
   const anchor = new THREE.Vector3();
