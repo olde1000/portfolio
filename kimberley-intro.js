@@ -5,7 +5,7 @@
     var START_DELAY = 900;
     var CHAR_MS = 26, CHAR_JITTER = 14;
     var PAUSE_PUNCT = 190, PAUSE_LINE = 340;
-    var FADE_AT = 0.05;
+    var FADE_AT = 0.05, HOLD_CAP = 16000;
 
     var calm = window.matchMedia('(prefers-reduced-motion: reduce)');
     var lines = Array.prototype.slice.call(root.querySelectorAll('[data-kimberley-type]'));
@@ -34,6 +34,17 @@
 
     var gone = false;
     var cursor = null;
+    var held = true;
+
+    document.body.classList.add('kimberley-is-locked');
+
+    var release = function () {
+        if (!held) return;
+        held = false;
+        document.body.classList.remove('kimberley-is-locked');
+    };
+
+    setTimeout(release, HOLD_CAP);
 
     var setCursor = function (span) {
         if (cursor) cursor.classList.remove('kimberley-intro-cursor');
@@ -54,6 +65,7 @@
             spans.forEach(function (s) { s.classList.add('kimberley-intro-lit'); });
         });
         setCursor(glyphs[glyphs.length - 1][glyphs[glyphs.length - 1].length - 1]);
+        release();
         return;
     }
 
@@ -68,7 +80,7 @@
         ci++;
 
         if (ci >= spans.length) {
-            if (++li >= glyphs.length) return;
+            if (++li >= glyphs.length) return release();
             ci = 0;
             return setTimeout(typeStep, PAUSE_LINE);
         }
