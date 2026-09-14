@@ -70,10 +70,10 @@ body.kimberley-is-locked {
     left: 50%;
     top: 46%;
     margin: 0;
-    font-size: clamp(2rem, 6vw, 5rem);
-    font-weight: var(--kimberley-boot-wght, 700);
-    letter-spacing: var(--kimberley-boot-track, -0.012em);
-    text-indent: var(--kimberley-boot-track, -0.012em);
+    font-size: clamp(1.75rem, 5vw, 4rem);
+    font-weight: var(--kimberley-boot-wght, 450);
+    letter-spacing: var(--kimberley-boot-track, -0.018em);
+    text-indent: var(--kimberley-boot-track, -0.018em);
     line-height: 1;
     color: #ffffff;
     opacity: var(--kimberley-boot-lift, 1);
