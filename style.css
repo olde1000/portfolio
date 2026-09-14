@@ -70,7 +70,7 @@ body.kimberley-is-locked {
     left: 50%;
     top: 46%;
     margin: 0;
-    font-size: clamp(1.75rem, 5vw, 4rem);
+    font-size: clamp(1.25rem, 3.6vw, 3rem);
     font-weight: var(--kimberley-boot-wght, 450);
     letter-spacing: var(--kimberley-boot-track, -0.018em);
     text-indent: var(--kimberley-boot-track, -0.018em);
@@ -80,6 +80,7 @@ body.kimberley-is-locked {
     filter: blur(var(--kimberley-boot-soft, 0px));
     transform: translate(-50%, -50%) scale(var(--kimberley-boot-wide, 1));
     white-space: nowrap;
+    max-width: 92vw;
 }
 
 .kimberley-credit {
