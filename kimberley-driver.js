@@ -13,7 +13,6 @@
     function engage() {
         if (engaged) return;
         engaged = true;
-        document.body.classList.add('kimberley-is-engaged');
     }
 
     ['wheel', 'touchmove', 'scroll'].forEach(function (name) {
