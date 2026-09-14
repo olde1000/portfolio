@@ -13,6 +13,7 @@ const plane = new THREE.PlaneGeometry(1, 1);
 const ray = new THREE.Raycaster();
 const ndc = new THREE.Vector2();
 const worldScale = new THREE.Vector3();
+const onScreen = new THREE.Vector3();
 const FORWARD = new THREE.Vector3(0, 0, 1);
 
 const scarTextures = [];
@@ -169,18 +170,50 @@ const addBurst = (host, localPoint, normal, invScale) => {
   bursts.push({ points, vel, t: 0 });
 };
 
+const aim = () => {
+  const astro = window.kimberleyAstro;
+  const camera = window.kimberleyCamera;
+  if (!astro || !camera) return null;
+  astro.updateWorldMatrix(true, false);
+  onScreen.setFromMatrixPosition(astro.matrixWorld).project(camera);
+  return { u: onScreen.x * 0.5 + 0.5, v: -onScreen.y * 0.5 + 0.5 };
+};
+
+const shove = (clickU, clickV) => {
+  const at = aim();
+  if (!at) return;
+  window.kimberleyKickNX = 0.30 - (at.u - clickU);
+  window.kimberleyKickNY = 0.35 - (at.v - clickV);
+  window.kimberleyKickPulse = (window.kimberleyKickPulse || 0) + 1;
+};
+
+const reaches = (clickU, clickV) => {
+  const at = aim();
+  const p = window.kimberleyShockProfile;
+  if (!at || !p) return;
+  const aspect = window.innerWidth / window.innerHeight;
+  const gap = Math.hypot((at.u - clickU) * aspect, at.v - clickV);
+  if (gap > p.seed + p.grow) return;
+  const front = Math.pow(Math.max(0, (gap - p.seed) / p.grow), 1 / p.ease);
+  setTimeout(() => shove(clickU, clickV), front * p.life * 1000);
+};
+
 const strike = () => {
   const astro = window.kimberleyAstro;
   const camera = window.kimberleyCamera;
   if (!astro || !camera) return;
   if ((window.kimberleyEnd || 0) >= 0.001) return;
 
-  ndc.x = (window.kimberleyClickNX == null ? 0.5 : window.kimberleyClickNX) * 2 - 1;
-  ndc.y = -((window.kimberleyClickNY == null ? 0.5 : window.kimberleyClickNY) * 2 - 1);
+  const clickU = window.kimberleyClickNX == null ? 0.5 : window.kimberleyClickNX;
+  const clickV = window.kimberleyClickNY == null ? 0.5 : window.kimberleyClickNY;
+  ndc.x = clickU * 2 - 1;
+  ndc.y = -(clickV * 2 - 1);
   ray.setFromCamera(ndc, camera);
 
   const hit = ray.intersectObject(astro, true)[0];
-  if (!hit || !hit.face) return;
+  if (!hit || !hit.face) { reaches(clickU, clickV); return; }
+
+  shove(clickU, clickV);
 
   const host = hit.object;
   host.updateWorldMatrix(true, false);

@@ -241,12 +241,12 @@ const tick = (now) => {
   const settle   = smoothstep(0.79, 0.89, pos);
   const turb     = traverse * (1 - settle);
 
-  const pulseNow = window.kimberleyClickPulse || 0;
+  const pulseNow = window.kimberleyKickPulse || 0;
   if (pulseNow !== kickPulse) {
     kickPulse = pulseNow;
     if (settle > 0.3) {
-      const cnx = window.kimberleyClickNX == null ? 0.5 : window.kimberleyClickNX;
-      const cny = window.kimberleyClickNY == null ? 0.5 : window.kimberleyClickNY;
+      const cnx = window.kimberleyKickNX == null ? 0.5 : window.kimberleyKickNX;
+      const cny = window.kimberleyKickNY == null ? 0.5 : window.kimberleyKickNY;
       let dxk = 0.30 - cnx, dyk = 0.35 - cny;
       const lk = Math.hypot(dxk, dyk) + 1e-3;
       const kickAmp = 0.55 + smoothstep(1.0, 1.2, pos) * 1.1;

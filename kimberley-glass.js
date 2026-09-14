@@ -5,6 +5,8 @@ const LIFE = 0.85, SEED = 0.015, GROW = 0.125, EASE = 0.55;
 const THICK = 0.010, SPREAD = 0.028, PUSH = 0.022;
 const CHROMA = 0.0035, RIM = 0.30;
 
+window.kimberleyShockProfile = { life: LIFE, seed: SEED, grow: GROW, ease: EASE };
+
 const renderer = window.kimberleyRenderer;
 
 if (renderer) {
