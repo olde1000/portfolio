@@ -9,7 +9,6 @@ const CONFIG = {
     backdrop: 'assets/video/space-backdrop.mp4',
     model: 'assets/models/astronaut.glb',
     modelScale: 1.0,
-    modelYaw: Math.PI,
     scrollVh: 540,
     beats: [
         { at: 0.14, side: 'left', y: '40%', da: 'PLACEHOLDER — beat 1', en: 'PLACEHOLDER — beat 1' },
@@ -27,6 +26,55 @@ const CONFIG = {
     ],
 };
 
+const RIG = {
+    face: 3.83,
+    float: 0.20,
+    speed: 2.0,
+    head: 0.09,
+    leftArmDown: -0.8,
+    leftArmOut: 1.0,
+};
+
+const JOINTS = {
+    shoulder: [0.06, 0.25, 0.19],
+    elbow: [0.16, 0.12, 0.21],
+    leftArm: [-0.20, 0.24, -0.10],
+    leftLeg: [-0.25, -0.20, 0.05],
+    rightLeg: [0.11, -0.18, 0.12],
+    head: [-0.05, 0.32, -0.02],
+};
+
+const GROUPS = {
+    upperArm: ['group1907831520', 'group139908371', 'group1310595050', 'group1369611446', 'group450518597'],
+    foreArm: [
+        'group1138436095', 'group734772326', 'group1167954657', 'group2060591166',
+        'group1934812181', 'group828877529', 'group1572698854', 'group1042580755',
+        'group925645544', 'group1217407763', 'group1163682321', 'group1423311402',
+        'group104451256', 'group1188494358', 'group1921399779', 'group584895319',
+        'group11481041', 'group1679735649',
+    ],
+    leftArm: [
+        'group282412729', 'group1707873932', 'group1506934965',
+        'group762855551', 'group1514672780', 'group1203591074',
+        'group276692338', 'group505957385', 'group2143627782', 'group279303741',
+        'group1564631837', 'group2056735301', 'group1015039822', 'group1437890092',
+        'group2057329393', 'group1585682906', 'group986243464', 'group790332696',
+        'group456711604', 'group654761556', 'group1852607879', 'group1614853819',
+        'group332540088',
+    ],
+    leftLeg: [
+        'group1440063915', 'group503988050', 'group332686008', 'group797940765',
+        'group989277149', 'group255140077', 'group1808813520', 'group524469484',
+        'group279101508', 'group954316612', 'group724382726', 'group1277767469',
+    ],
+    rightLeg: [
+        'group42438703', 'group247475039', 'group1602554113', 'group1896148415',
+        'group991616414', 'group314405485', 'group1481515652', 'group1830018461',
+        'group2129567275', 'group373555577', 'group781958242', 'group1596727529',
+    ],
+    head: ['group666895494', 'group1307457211', 'group638132290'],
+};
+
 const spaceEl = document.getElementById('space');
 const glCanvas = document.getElementById('spaceGL');
 const scrollEl = document.getElementById('spaceScroll');
@@ -40,7 +88,7 @@ const coarse = () => window.matchMedia('(pointer: coarse)').matches;
 const getLang = () => (document.documentElement.lang === 'en' ? 'en' : 'da');
 
 let renderer, scene, camera, clock, composer, bloomPass;
-let backdropVideo, backdropTexture, stars, astronaut = null, astronautHolder, mixer = null, hasAnim = false;
+let backdropVideo, backdropTexture, stars, astronaut = null, astronautHolder, rig = null;
 let rafId = 0;
 let entered = false, enterAmt = 0;
 let progress = 0, progressEased = 0;
@@ -104,22 +152,49 @@ const buildScene = () => {
     scene.add(astronautHolder);
 
     new GLTFLoader().load(CONFIG.model, (gltf) => {
-        const wrap = new THREE.Group();
-        wrap.add(gltf.scene);
+        const obj = gltf.scene;
+        const box = new THREE.Box3().setFromObject(obj);
         const size = new THREE.Vector3();
-        new THREE.Box3().setFromObject(gltf.scene).getSize(size);
-        wrap.scale.setScalar((2.0 / (size.y || 1)) * CONFIG.modelScale);
         const centre = new THREE.Vector3();
-        new THREE.Box3().setFromObject(wrap).getCenter(centre);
-        wrap.position.sub(centre);
+        box.getSize(size);
+        box.getCenter(centre);
+        obj.position.sub(centre);
+
+        const wrap = new THREE.Group();
+        wrap.add(obj);
+        wrap.scale.setScalar((2.0 / (size.y || 1)) * CONFIG.modelScale);
+        wrap.rotation.y = RIG.face;
         astronaut = wrap;
         astronautHolder.add(wrap);
 
-        if (gltf.animations && gltf.animations.length) {
-            mixer = new THREE.AnimationMixer(gltf.scene);
-            mixer.clipAction(gltf.animations[0]).play();
-            hasAnim = true;
-        }
+        obj.updateMatrixWorld(true);
+        const joint = ([x, y, z]) => {
+            const g = new THREE.Group();
+            g.position.set(x, y, z);
+            obj.add(g);
+            return g;
+        };
+        const shoulder = joint(JOINTS.shoulder);
+        const elbow = joint(JOINTS.elbow);
+        const leftArm = joint(JOINTS.leftArm);
+        const leftLeg = joint(JOINTS.leftLeg);
+        const rightLeg = joint(JOINTS.rightLeg);
+        const head = joint(JOINTS.head);
+        obj.updateMatrixWorld(true);
+
+        const attach = (pivot, names) => names.forEach((name) => {
+            const mesh = obj.getObjectByName(name);
+            if (mesh) pivot.attach(mesh);
+        });
+        attach(elbow, GROUPS.foreArm);
+        attach(shoulder, GROUPS.upperArm);
+        shoulder.attach(elbow);
+        attach(leftArm, GROUPS.leftArm);
+        attach(leftLeg, GROUPS.leftLeg);
+        attach(rightLeg, GROUPS.rightLeg);
+        attach(head, GROUPS.head);
+
+        rig = { shoulder, elbow, leftArm, leftLeg, rightLeg, head };
     });
 };
 
@@ -204,8 +279,6 @@ const setup = () => {
     resize();
 };
 
-// The container is masked from the bottom up as the camera flies in, so the scene
-// rises into frame rather than cutting on.
 const applyReveal = (emerge) => {
     if (reduced()) return;
     if (emerge >= 0.999) {
@@ -255,23 +328,43 @@ const draw = () => {
     }
 
     if (astronaut) {
-        if (mixer) mixer.update(dt);
-        if (hasAnim) {
-            astronaut.rotation.y = CONFIG.modelYaw + Math.sin(p * Math.PI * 2.0) * 0.3;
-            astronautHolder.rotation.z = Math.sin(p * Math.PI * 3.0 + 0.6) * 0.2;
-            astronautHolder.rotation.x = 0;
-            astronautHolder.position.y = reduced() ? 0 : Math.sin(t * 0.6) * 0.1;
-            astronautHolder.position.z = 0;
-        } else {
-            const stroke = reduced() ? 0 : t * 1.9;
-            const swim = Math.sin(stroke);
-            const swim2 = Math.sin(stroke * 0.5);
-            const swim3 = Math.sin(stroke * 0.5 + 1.2);
-            astronaut.rotation.y = CONFIG.modelYaw + Math.sin(p * Math.PI * 2.0) * 0.35 + swim3 * 0.35;
-            astronautHolder.rotation.x = -0.3 + Math.sin(p * Math.PI * 1.5 + 0.3) * 0.15 + swim * 0.42;
-            astronautHolder.rotation.z = Math.sin(p * Math.PI * 3.0 + 0.6) * 0.26 + swim2 * 0.4;
-            astronautHolder.position.y = swim * 0.28 + Math.sin(p * Math.PI) * 0.1;
-            astronautHolder.position.z = Math.sin(stroke - 0.5) * 0.18;
+        const at = reduced() ? 0 : t;
+
+        astronautHolder.rotation.y = Math.sin(at * 0.16) * 0.20 + Math.sin(at * 0.093 + 1.3) * 0.11
+            + Math.sin(at * 0.35) * 0.06 + mx * 0.30;
+        astronautHolder.rotation.x = Math.sin(at * 0.12 + 0.7) * 0.13 + Math.cos(at * 0.20) * 0.05
+            + Math.sin(at * 0.5 + 2.0) * 0.05 + my * 0.18;
+        astronautHolder.rotation.z = Math.sin(at * 0.10 + 2.0) * 0.10 + Math.sin(at * 0.28) * 0.07;
+
+        astronautHolder.position.x = Math.sin(at * 0.14 + 0.5) * 0.14 + Math.sin(at * 0.4 + 1.0) * 0.10;
+        astronautHolder.position.y = Math.cos(at * 0.11 + 1.0) * 0.11 + Math.sin(at * 0.6) * 0.10
+            + Math.sin(at * 0.23 + 1.3) * 0.05;
+
+        if (rig) {
+            const lf = RIG.float;
+            const sp = RIG.speed;
+            const limb = lf * 0.6;
+            const armFloat = limb * (Math.sin(at * sp * 1.2 + 0.9) + 0.4 * Math.sin(at * sp * 2.1 + 2.2));
+
+            rig.shoulder.rotation.z = armFloat * 0.6;
+            rig.shoulder.rotation.x = armFloat;
+            rig.shoulder.rotation.y = lf * 0.5 * Math.sin(at * sp * 0.9 + 1.2);
+            rig.elbow.rotation.z = armFloat * 0.4;
+            rig.elbow.rotation.x = armFloat * 0.5;
+
+            rig.leftArm.rotation.x = RIG.leftArmDown
+                + limb * (Math.sin(at * sp * 1.3 + 0.4) + 0.5 * Math.sin(at * sp * 2.4 + 1.1));
+            rig.leftArm.rotation.z = limb * 0.7 * Math.sin(at * sp * 1.0 + 1.7);
+            rig.leftArm.rotation.y = RIG.leftArmOut;
+
+            rig.leftLeg.rotation.x = limb * (Math.sin(at * sp * 1.1 + 2.1) + 0.4 * Math.sin(at * sp * 2.0 + 0.3));
+            rig.leftLeg.rotation.z = limb * 0.5 * Math.sin(at * sp * 1.3 + 0.6);
+            rig.rightLeg.rotation.x = limb * (Math.sin(at * sp * 1.2 + 3.4) + 0.4 * Math.sin(at * sp * 2.2 + 1.5));
+            rig.rightLeg.rotation.z = limb * 0.5 * Math.sin(at * sp * 1.25 + 2.8);
+
+            rig.head.rotation.y = RIG.head * Math.sin(at * 0.7 + 0.3) + mx * 0.15;
+            rig.head.rotation.x = RIG.head * 0.8 * Math.sin(at * 0.9 + 1.1) + my * 0.12;
+            rig.head.rotation.z = RIG.head * 0.5 * Math.sin(at * 0.5 + 2.0);
         }
     }
 
