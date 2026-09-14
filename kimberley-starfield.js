@@ -18,7 +18,7 @@
     var W = 0, H = 0, DPR = 1, FW = 0, FH = 0;
     var layers = [];
     var t0 = null, last = null;
-    var mx = 0, my = 0;
+    var mx = 0, my = 0, shown = -1;
 
     var build = function () {
         FW = W + MARGIN * 2;
@@ -60,6 +60,13 @@
         var t = (now - t0) / 1000;
         var dt = Math.min((now - last) / 1000, 0.05);
         last = now;
+
+        var vis = 1 - Math.max(0, Math.min(1, window.kimberleyEnd || 0));
+        if (vis !== shown) {
+            cv.style.opacity = vis.toFixed(3);
+            shown = vis;
+        }
+        if (vis <= 0.001) return;
 
         var still = calm.matches;
         var az = still ? 0 : (window.kimberleyScrollAz || 0);
