@@ -83,29 +83,6 @@ body.kimberley-is-locked {
     max-width: 92vw;
 }
 
-.kimberley-boot-word {
-    display: inline-block;
-    overflow: hidden;
-    padding: 0.18em 0.03em 0.26em;
-    margin: -0.18em -0.03em -0.26em;
-    vertical-align: baseline;
-}
-
-.kimberley-boot-word > span {
-    display: inline-block;
-    transform: translateY(var(--kimberley-word-rise, 112%));
-    opacity: var(--kimberley-word-in, 0);
-    text-shadow:
-        0 var(--kimberley-word-drop, 0.3em) 0 rgba(255, 46, 96, var(--kimberley-word-chroma, 0)),
-        0 calc(-1 * var(--kimberley-word-drop, 0.3em)) 0 rgba(0, 194, 255, var(--kimberley-word-chroma, 0));
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .kimberley-boot-word > span {
-        text-shadow: none;
-    }
-}
-
 .kimberley-credit {
     position: fixed;
     top: clamp(18px, 3vh, 30px);
