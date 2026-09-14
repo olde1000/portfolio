@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 
 const SLOTS = 8;
-const LIFE = 5.4, GROW = 0.34, BAND = 5.2, PUSH = 0.07;
-const CHROMA = 0.006, GLINT = 0.18;
+const LIFE = 0.85, SEED = 0.015, GROW = 0.125, EASE = 0.55;
+const THICK = 0.010, SPREAD = 0.028, PUSH = 0.022;
+const CHROMA = 0.0035, RIM = 0.30;
+const BG = 0x05070d;
 
 const renderer = window.kimberleyRenderer;
 
@@ -24,32 +26,38 @@ if (renderer) {
       vec2 uv = v_uv;
       float aspect = u_res.x / u_res.y;
       vec2 flow = vec2(0.0);
-      float ring = 0.0;
+      float rim = 0.0;
 
       for (int i = 0; i < ${SLOTS}; i++) {
         float age = u_ages[i];
-        if (age >= 0.0 && age < ${LIFE.toFixed(1)}) {
-          vec2 cd = (uv - u_clicks[i]) * vec2(aspect, 1.0);
-          float band = exp(-pow((length(cd) - age * ${GROW.toFixed(2)}) * ${BAND.toFixed(1)}, 2.0));
-          float rr = band * pow(1.0 - age / ${LIFE.toFixed(1)}, 1.8) * smoothstep(0.0, 0.24, age);
-          ring += rr;
-          flow += normalize(uv - u_clicks[i] + 1e-5) * rr * ${PUSH.toFixed(2)};
-        }
+        if (age < 0.0 || age >= ${LIFE.toFixed(2)}) continue;
+
+        vec2 cd = (uv - u_clicks[i]) * vec2(aspect, 1.0);
+        float r = length(cd);
+        float life = age / ${LIFE.toFixed(2)};
+        float radius = ${SEED.toFixed(3)} + pow(life, ${EASE.toFixed(2)}) * ${GROW.toFixed(3)};
+        float thick = ${THICK.toFixed(3)} + life * ${SPREAD.toFixed(3)};
+        float lobe = (r - radius) / thick;
+        float shell = exp(-lobe * lobe);
+        float decay = pow(1.0 - life, 2.2);
+
+        flow += normalize(cd + 1e-5) * shell * -lobe * decay * ${PUSH.toFixed(3)};
+        rim += shell * shell * decay;
       }
 
       vec2 suv = uv + flow;
       vec4 s = texture2D(u_tex, suv);
       vec3 col = s.rgb;
 
-      if (ring > 0.002) {
+      if (rim > 0.002) {
         vec2 dir = normalize(flow + 1e-5);
-        float ca = ring * ${CHROMA.toFixed(4)};
+        float ca = rim * ${CHROMA.toFixed(4)};
         col.r = texture2D(u_tex, suv + dir * ca).r;
         col.b = texture2D(u_tex, suv - dir * ca).b;
-        col += vec3(0.62, 0.78, 1.0) * ring * ${GLINT.toFixed(2)};
+        col += vec3(0.70, 0.84, 1.0) * rim * ${RIM.toFixed(2)};
       }
 
-      gl_FragColor = vec4(col, max(s.a, ring * 0.55));
+      gl_FragColor = vec4(col, 1.0);
     }
   `;
 
@@ -69,7 +77,6 @@ if (renderer) {
     new THREE.ShaderMaterial({
       vertexShader: vert,
       fragmentShader: frag,
-      transparent: true,
       depthTest: false,
       depthWrite: false,
       uniforms: {
@@ -85,6 +92,7 @@ if (renderer) {
   const flat = new THREE.Camera();
 
   const size = new THREE.Vector2();
+  const wasClear = new THREE.Color();
   let slot = 0, seenPulse = 0, lastNow = null;
 
   const strike = () => {
@@ -126,10 +134,14 @@ if (renderer) {
       quad.material.uniforms.u_res.value.copy(size);
     }
 
+    renderer.getClearColor(wasClear);
+    const wasAlpha = renderer.getClearAlpha();
+    renderer.setClearColor(BG, 1);
     renderer.setRenderTarget(target);
     renderer.clear();
     renderer.render(scene, camera);
     renderer.setRenderTarget(null);
+    renderer.setClearColor(wasClear, wasAlpha);
     renderer.render(pass, flat);
   };
 }
