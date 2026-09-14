@@ -10,12 +10,7 @@ const CONFIG = {
     model: 'assets/models/astronaut.glb',
     modelScale: 1.0,
     scrollVh: 540,
-    beats: [
-        { at: 0.14, side: 'left', y: '40%', da: 'PLACEHOLDER — beat 1', en: 'PLACEHOLDER — beat 1' },
-        { at: 0.40, side: 'right', y: '58%', da: 'PLACEHOLDER — beat 2', en: 'PLACEHOLDER — beat 2' },
-        { at: 0.66, side: 'left', y: '44%', da: 'PLACEHOLDER — beat 3', en: 'PLACEHOLDER — beat 3' },
-        { at: 0.90, side: 'right', y: '56%', da: 'PLACEHOLDER — beat 4', en: 'PLACEHOLDER — beat 4' },
-    ],
+    beats: [],
     views: [
         { p: 0.00, az: 0.00, el: 0.05, dist: 5.0 },
         { p: 0.16, az: -0.55, el: 0.02, dist: 4.2 },
