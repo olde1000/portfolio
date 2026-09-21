@@ -475,6 +475,61 @@ const inFrame = new IntersectionObserver((entries) => {
     inFrame.observe(film);
 });
 
+const railDecks = [
+    { rail: document.querySelector(".panels"), label: "Mit jeg" },
+    { rail: document.querySelector(".cases-stage"), label: "Mit arbejde" },
+    { rail: document.querySelector(".sampo-stage"), label: "På tryk" },
+    { rail: document.querySelector(".studio-stage"), label: "StudioKimberley" }
+];
+const folds = [
+    { from: document.querySelector(".today-stage"), into: railDecks[1].rail, lead: true },
+    { from: document.querySelector(".print-stage"), into: railDecks[2].rail, lead: true },
+    { from: document.querySelector(".embed-stage"), into: railDecks[3].rail, lead: false }
+].map((fold) => ({ ...fold, kids: [...fold.from.children] }));
+
+function markCard(deck) {
+    const at = Math.round(deck.rail.scrollLeft / deck.rail.clientWidth);
+    [...deck.dots.children].forEach((dot, i) => dot.classList.toggle("is-at", i === at));
+}
+function addDots(deck) {
+    const cards = getComputedStyle(deck.rail).gridTemplateColumns.split(" ").length;
+    const strip = document.createElement("span");
+    const pill = document.createElement("span");
+    strip.className = "rail-dots";
+    strip.setAttribute("aria-hidden", "true");
+    for (let i = 0; i < cards; i += 1) pill.append(document.createElement("i"));
+    strip.append(pill);
+    deck.rail.prepend(strip);
+    deck.dots = pill;
+    deck.rail.addEventListener("scroll", () => markCard(deck), { passive: true });
+    markCard(deck);
+}
+
+let folded = false;
+function setDeck(on) {
+    if (on === folded) return;
+    folded = on;
+    folds.forEach((fold) => {
+        if (!on) fold.from.append(...fold.kids);
+        else if (fold.lead) fold.into.prepend(...fold.kids);
+        else fold.into.append(...fold.kids);
+    });
+    railDecks.forEach((deck) => {
+        if (!on) {
+            deck.rail.removeAttribute("tabindex");
+            deck.rail.removeAttribute("role");
+            deck.rail.removeAttribute("aria-label");
+            return;
+        }
+        deck.rail.tabIndex = 0;
+        deck.rail.setAttribute("role", "region");
+        deck.rail.setAttribute("aria-label", deck.label);
+        if (!deck.dots) addDots(deck);
+    });
+}
+setDeck(phone.matches);
+phone.addEventListener("change", (event) => setDeck(event.matches));
+
 addEventListener("scroll", () => { if (watching) schedule(); }, { passive: true });
 addEventListener("resize", () => { setFrameScale(); schedule(); }, { passive: true });
 setFrameScale();
