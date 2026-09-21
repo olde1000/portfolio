@@ -7,16 +7,14 @@
 }
 
 :root {
-    --kimberley-font: "Epilogue", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    --kimberley-e-out: cubic-bezier(0.16, 1, 0.3, 1);
-    --kimberley-e-quart: cubic-bezier(0.25, 1, 0.5, 1);
-    --kimberley-e-ui: cubic-bezier(0.4, 0, 0.2, 1);
-    --kimberley-paper: #f6f6ef;
-    --kimberley-ink: #0b0384;
-    --kimberley-door: #46191c;
-    --kimberley-haze: #81a1b6;
-    --kimberley-aside: #4d6a7a;
-    --kimberley-lit: #e0a85c;
+    --font: "Epilogue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-quart: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-ui: cubic-bezier(0.4, 0, 0.2, 1);
+    --paper: #f6f6ef;
+    --ink: #0b0384;
+    --maroon: #46191c;
+    --slate: #4d6a7a;
 }
 *,
 *::before,
@@ -27,6 +25,12 @@ html {
     overflow-x: clip;
     overscroll-behavior: none;
 }
+
+@media (min-aspect-ratio: 11 / 10) {
+    html {
+        font-size: max(13.12px, min(100vw / 94.5, 100svh / 53.75));
+    }
+}
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
 }
@@ -34,9 +38,9 @@ body {
     margin: 0;
     min-height: 100svh;
     overflow-x: clip;
-    background: var(--kimberley-paper);
-    color: var(--kimberley-ink);
-    font-family: var(--kimberley-font);
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font);
     font-synthesis: none;
 }
 body::after {
@@ -44,119 +48,131 @@ body::after {
     position: fixed;
     inset: 0;
     z-index: 4;
-    background: var(--kimberley-paper);
+    background: var(--paper);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 380ms var(--kimberley-e-ui);
+    transition: opacity 380ms var(--ease-ui);
 }
-body.kimberley-veiled::after {
+body.is-jumping::after {
     opacity: 1;
 }
-.kimberley-mark {
+
+.chapter-mark {
     position: absolute;
     left: 0;
-    width: 1px;
-    height: 1px;
+    width: 0.0625rem;
+    height: 0.0625rem;
 }
-.kimberley-jump {
+
+#mark-top { top: 0; }
+#mark-craft { top: 38.57%; }
+#mark-today { top: 20%; }
+#mark-studio { top: 18.84%; }
+
+.chapters {
     position: fixed;
-    left: clamp(10px, 1.6vw, 22px);
-    top: clamp(10px, 2vh, 22px);
+    left: 50%;
+    top: 1.0625rem;
     z-index: 5;
+    translate: -50% 0;
     display: flex;
-    gap: 2px;
-    padding: 5px;
+    gap: 0.125rem;
+    padding: 0.3125rem;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--kimberley-paper) 52%, transparent);
-    box-shadow: 0 1px 12px rgb(11 3 132 / 0.10);
-    backdrop-filter: blur(12px) saturate(1.4);
-    color: var(--kimberley-ink);
+    background: color-mix(in srgb, var(--paper) 52%, transparent);
+    box-shadow: 0 0.0625rem 0.75rem rgb(11 3 132 / 0.10);
+    backdrop-filter: blur(0.75rem) saturate(1.4);
+    color: var(--ink);
 }
-@supports not (backdrop-filter: blur(2px)) {
-    .kimberley-jump {
-        background: color-mix(in srgb, var(--kimberley-paper) 90%, transparent);
+
+@supports not (backdrop-filter: blur(0.125rem)) {
+    .chapters {
+        background: color-mix(in srgb, var(--paper) 90%, transparent);
     }
 }
 
-.kimberley-jump a {
+.chapters a {
     position: relative;
     display: grid;
     place-items: center;
-    width: 26px;
-    height: 26px;
+    width: 1.625rem;
+    height: 1.625rem;
     border-radius: 999px;
     color: inherit;
 }
-.kimberley-jump a::before {
+.chapters a::before {
     content: "";
-    width: 7px;
-    height: 7px;
+    width: 0.4375rem;
+    height: 0.4375rem;
     border-radius: 999px;
     background: currentColor;
     opacity: 0.38;
-    transition: opacity 250ms var(--kimberley-e-ui), scale 250ms var(--kimberley-e-ui);
+    transition: opacity 250ms var(--ease-ui), scale 250ms var(--ease-ui);
 }
-.kimberley-jump a:hover::before,
-.kimberley-jump a[aria-current]::before {
+.chapters a:hover::before,
+.chapters a[aria-current]::before {
     opacity: 1;
     scale: 1.3;
 }
-.kimberley-jump a:focus-visible {
-    outline: 2px solid #fff;
-    outline-offset: 3px;
-    box-shadow: 0 0 0 5px #000;
+.chapters a:focus-visible {
+    outline: 0.125rem solid #fff;
+    outline-offset: 0.1875rem;
+    box-shadow: 0 0 0 0.3125rem #000;
 }
 
-.kimberley-jump span {
+.chapters span {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 0.5rem);
     left: 50%;
     padding: 0.28em 0.7em;
     border-radius: 999px;
     background: inherit;
-    backdrop-filter: blur(12px) saturate(1.4);
+    backdrop-filter: blur(0.75rem) saturate(1.4);
     font-size: 0.75rem;
     font-weight: 560;
     letter-spacing: 0.04em;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
-    translate: -50% -4px;
-    transition: opacity 250ms var(--kimberley-e-ui), translate 250ms var(--kimberley-e-out);
+    translate: -50% -0.25rem;
+    transition: opacity 250ms var(--ease-ui), translate 250ms var(--ease-out);
 }
-.kimberley-jump a:hover span,
-.kimberley-jump a:focus-visible span {
+.chapters a:hover span,
+.chapters a:focus-visible span {
     opacity: 1;
     translate: -50% 0;
 }
+
 @media (max-width: 380px) {
-    .kimberley-jump {
+    .chapters {
         left: 50%;
         top: auto;
         bottom: clamp(10px, 2.4vh, 22px);
         translate: -50% 0;
     }
-    .kimberley-jump span {
+    .chapters span {
         top: auto;
         bottom: calc(100% + 8px);
     }
 }
-.kimberley-work {
-    background: var(--kimberley-paper);
+
+.today {
+    background: var(--paper);
 }
-.kimberley-work-track {
+.today-track {
     position: relative;
     height: 900svh;
 }
-.kimberley-next {
-    background: var(--kimberley-paper);
-    color: var(--kimberley-ink);
+
+.cases {
+    background: var(--paper);
+    color: var(--ink);
 }
-.kimberley-next-track {
+.cases-track {
     position: relative;
     height: 2000svh;
 }
-.kimberley-next-stage {
+.cases-stage {
     position: sticky;
     top: 0;
     z-index: 3;
@@ -164,100 +180,113 @@ body.kimberley-veiled::after {
     height: 100svh;
     overflow: clip;
     place-items: center;
-    background: var(--kimberley-paper);
+    background: var(--paper);
 }
-.kimberley-push .kimberley-next-track {
+
+.js .cases-track {
     margin-top: -300svh;
 }
-.kimberley-push .kimberley-next-stage {
-    translate: 0 calc((1 - var(--kimberley-push, 1)) * 100%);
+.js .cases-stage {
+    translate: 0 calc((1 - var(--push, 1)) * 100%);
 }
-.kimberley-next-reel {
+
+.cases-reel {
+    --side: 5.75rem;
+    --band: 18.5rem;
+    --foot: 4.5rem;
+    --solo-side: 3.75rem;
+    --solo-left: 33.875rem;
+    --solo-band: 6rem;
+    --pad-left: calc(var(--side) + (var(--solo-left) - var(--side)) * var(--merge, 0));
+    --pad-right: calc(var(--side) + (var(--solo-side) - var(--side)) * var(--merge, 0));
+    --pad-top: calc(var(--band) + (var(--solo-band) - var(--band)) * var(--merge, 0));
+    --pad-foot: calc(var(--foot) + (var(--solo-band) - var(--foot)) * var(--merge, 0));
+    --room-w: calc(100vw - var(--pad-left) - var(--pad-right));
+    --room-h: calc(100svh - var(--pad-top) - var(--pad-foot));
+    --shape: calc(2.7 + (1.7778 - 2.7) * var(--merge, 0));
+    --reel-w: min(var(--room-w), var(--room-h) * var(--shape));
+    --reel-h: calc(var(--reel-w) / var(--shape));
     position: absolute;
-    top: 50%;
-    right: calc(4vw * (1 - var(--kimberley-open, 0)));
-    width: calc(56vw + 44vw * var(--kimberley-open, 0));
-    height: calc(31.5vw + (100svh - 31.5vw) * var(--kimberley-open, 0));
-    max-height: calc(84svh + 16svh * var(--kimberley-open, 0));
-    translate: 0 -50%;
+    top: calc((var(--pad-top) + (var(--room-h) - var(--reel-h)) / 2) * (1 - var(--open, 0)));
+    left: calc((100vw - var(--pad-right) - var(--reel-w)) * (1 - var(--open, 0)));
+    width: calc(var(--reel-w) + (100vw - var(--reel-w)) * var(--open, 0));
+    height: calc(var(--reel-h) + (100svh - var(--reel-h)) * var(--open, 0));
+    overflow: clip;
     pointer-events: none;
 }
-.kimberley-next-film {
+
+.case-film {
     position: absolute;
-    inset: 0;
+    top: calc(var(--rise, 0) * 1%);
+    left: calc(var(--tile, 0) * 1%);
+    z-index: var(--stack, auto);
     display: block;
-    width: 100%;
-    height: 100%;
+    width: calc(var(--wide, 100) * 1%);
+    height: calc(var(--tall, 100) * 1%);
     object-fit: cover;
 }
-.kimberley-push .kimberley-next-film {
+
+.js .case-film {
     transform-origin: 32% 50%;
-    object-position: 50% calc((1 - var(--kimberley-near, 0)) * 50%);
-    scale: calc(1 + (1 - var(--kimberley-lift, 1)) * 0.06);
-    clip-path: inset(calc((1 - var(--kimberley-lift, 1)) * 100%) 0 0 0);
+    object-position: 50% calc((1 - var(--open, 0)) * 50%);
+    scale: calc(1 + (1 - var(--lift, 1)) * 0.06);
+    clip-path: inset(calc((1 - var(--lift, 1)) * 100%) 0 0 0);
 }
-.kimberley-push .kimberley-next-words {
+.js .cases-words {
     display: grid;
     align-items: center;
 }
-.kimberley-push .kimberley-next-said {
+.js .case-copy {
     grid-area: 1 / 1;
 }
-.kimberley-next-tag {
+
+.case-tag {
     margin: 0 0 0.45em;
-    font-size: clamp(1.25rem, 1.75vw, 1.625rem);
+    font-size: 1.625rem;
     font-weight: 480;
     letter-spacing: -0.015em;
     line-height: 1.25;
     text-wrap: balance;
-    color: var(--kimberley-door);
+    color: var(--maroon);
 }
-.kimberley-next-words {
+
+.cases-words {
     place-self: center start;
-    width: min(26rem, calc(36% - clamp(24px, 6vw, 108px)));
-    margin-left: clamp(24px, 6vw, 108px);
-    color: var(--kimberley-ink);
-    font-size: clamp(1.0625rem, 1.25vw, 1.1875rem);
+    width: min(calc(50rem + (26rem - 50rem) * var(--merge, 0)),
+        calc(100% - 2 * 5.75rem));
+    margin-left: 5.75rem;
+    color: var(--ink);
+    font-size: 1.1875rem;
     line-height: 1.58;
     text-wrap: pretty;
-    translate: calc(var(--kimberley-gone, 0) * -24rem) 0;
+    translate: calc(var(--gone, 0) * -24rem)
+        calc((1 - var(--merge, 0)) * -18.1875rem);
 }
-.kimberley-next-said {
-    color: var(--kimberley-door);
+
+.case-copy {
+    color: var(--maroon);
 }
-.kimberley-push .kimberley-next-said {
+
+.js .case-copy {
     visibility: hidden;
 }
-.kimberley-push .kimberley-next-covered .kimberley-next-said {
+.js .cases-ready .case-copy {
     visibility: visible;
 }
-.kimberley-next-said {
-    opacity: var(--kimberley-note, 1);
-    translate: 0 calc((1 - var(--kimberley-note, 1)) * 1.5rem);
+
+.case-copy {
+    opacity: var(--note, 1);
+    translate: 0 calc((1 - var(--note, 1)) * 1.5rem);
 }
-.kimberley-next-said p:not(.kimberley-next-tag) {
+.case-copy p:not(.case-tag) {
     margin: 0;
 }
-.kimberley-next-said:first-of-type p {
-    font-size: clamp(1.25rem, 1.55vw, 1.4375rem);
+.case-copy:first-of-type p {
+    font-size: 1.4375rem;
     line-height: 1.5;
 }
-@media (max-aspect-ratio: 11 / 10) {
-    .kimberley-next-words {
-        place-self: end center;
-        width: min(30rem, calc(100% - 2 * clamp(24px, 6vw, 108px)));
-        margin: 0 0 clamp(24px, 5svh, 56px);
-    }
-    .kimberley-next-reel {
-        top: calc(7svh * (1 - var(--kimberley-open, 0)));
-        right: calc(3vw * (1 - var(--kimberley-open, 0)));
-        width: calc(94vw + 6vw * var(--kimberley-open, 0));
-        height: calc(52.9vw + (100svh - 52.9vw) * var(--kimberley-open, 0));
-        max-height: calc(46svh + 54svh * var(--kimberley-open, 0));
-        translate: 0 0;
-    }
-}
-.kimberley-work-stage {
+
+.today-stage {
     position: sticky;
     top: 0;
     z-index: 3;
@@ -265,107 +294,103 @@ body.kimberley-veiled::after {
     height: 100svh;
     overflow: clip;
     place-items: center;
-    background: var(--kimberley-paper);
+    background: var(--paper);
 }
-.kimberley-work-stage::before {
+.today-stage::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: var(--kimberley-door);
-    clip-path: inset(0 0 calc(var(--kimberley-cover, 1) * 100%) 0);
+    background: var(--maroon);
+    clip-path: inset(0 0 calc(var(--cover, 1) * 100%) 0);
 }
-.kimberley-work-shot {
+.today-shot {
     position: absolute;
     top: 50%;
-    left: calc(4.5% * (1 - var(--kimberley-grow, 0)));
+    left: calc(4.5% * (1 - var(--grow, 0)));
     display: block;
-    width: calc(46% + 54% * var(--kimberley-grow, 0));
-    height: calc((46% + 54% * var(--kimberley-grow, 0))
-        * (1 + (1 - var(--kimberley-grow, 0)) * 0.55));
+    width: calc(46% + 54% * var(--grow, 0));
+    height: calc((46% + 54% * var(--grow, 0))
+        * (1 + (1 - var(--grow, 0)) * 0.55));
     object-fit: cover;
     translate: 0 -50%;
-    scale: calc(1 + var(--kimberley-creep, 0));
-    clip-path: inset(calc((1 - var(--kimberley-cover, 1)) * 100%) 0 0 0);
+    scale: calc(1 + var(--creep, 0));
+    clip-path: inset(calc((1 - var(--cover, 1)) * 100%) 0 0 0);
     pointer-events: none;
 }
-.kimberley-work-swap {
+.today-shot-two {
     z-index: 1;
-    clip-path: inset(calc((1 - var(--kimberley-swap, 1)) * 100%) 0 0 0);
+    clip-path: inset(calc((1 - var(--swap, 1)) * 100%) 0 0 0);
+    object-position: 50% 40%;
+    transform-origin: 50% 40%;
+    scale: calc(1 + var(--creep, 0) + var(--grow, 0) * 0.16);
 }
-.kimberley-push .kimberley-work-shot {
+
+.js .today-shot {
     visibility: hidden;
 }
-.kimberley-push .kimberley-work-show .kimberley-work-shot {
+.js .today-shown .today-shot {
     visibility: visible;
 }
-.kimberley-track {
+
+.intro-track {
     position: relative;
 }
-.kimberley-work-words {
+
+.today-words {
     place-self: center start;
-    width: min(30rem, calc(44% - clamp(24px, 6vw, 108px)));
+    width: min(30rem, calc(44% - 5.75rem));
     margin-left: 56%;
-    color: var(--kimberley-ink);
-    font-size: clamp(1rem, 1.15vw, 1.0625rem);
+    color: var(--ink);
+    font-size: 1.0625rem;
     line-height: 1.62;
     text-wrap: pretty;
 }
-@media (max-aspect-ratio: 11 / 10) {
-    .kimberley-work-words {
-        place-self: end center;
-        width: min(30rem, calc(100% - 2 * clamp(24px, 6vw, 108px)));
-        margin: 0 0 clamp(24px, 5svh, 56px);
-    }
-    .kimberley-work-shot {
-        top: calc(6% * (1 - var(--kimberley-grow, 0)));
-        left: calc(21% * (1 - var(--kimberley-grow, 0)));
-        width: calc(58% + 42% * var(--kimberley-grow, 0));
-        height: calc(58% + 42% * var(--kimberley-grow, 0));
-        translate: 0 0;
-    }
-}
-.kimberley-work-title,
-.kimberley-work-said h2 {
+
+.today-title,
+
+.today-copy h2 {
     margin: 0 0 0.6em;
-    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-size: 2.5rem;
     font-weight: 320;
     letter-spacing: -0.02em;
     line-height: 1.1;
 }
-.kimberley-work-said h2 {
+.today-copy h2 {
     font-weight: 380;
 }
-.kimberley-work-said {
-    opacity: var(--kimberley-say, 1);
-    translate: calc(var(--kimberley-go, 0) * 5rem) 0;
-    color: var(--kimberley-door);
+.today-copy {
+    opacity: var(--say, 1);
+    translate: calc(var(--go, 0) * 5rem) 0;
+    color: var(--maroon);
 }
-.kimberley-push .kimberley-work-said {
+
+.js .today-copy {
     visibility: hidden;
 }
-.kimberley-push .kimberley-work-close .kimberley-work-said {
+.js .today-closing .today-copy {
     visibility: visible;
 }
 
-.kimberley-work-said p {
+.today-copy p {
     margin: 0 0 1.2em;
 }
-.kimberley-work-said p:last-child {
+.today-copy p:last-child {
     margin-bottom: 0;
 }
-.kimberley-stage {
+
+.hero {
     position: relative;
     height: 100svh;
     overflow: clip;
     font-size: calc(100vw / 3.043);
 }
-.kimberley-wordmark {
+.hero-name {
     position: absolute;
     left: -0.0525em;
     bottom: -0.213em;
     margin: 0;
-    color: var(--kimberley-door);
+    color: var(--maroon);
     font-size: inherit;
     font-weight: 310;
     letter-spacing: -0.03em;
@@ -374,28 +399,25 @@ body.kimberley-veiled::after {
     white-space: nowrap;
 }
 
-.kimberley-dot {
+.hero-dot {
     position: absolute;
     bottom: 0.87965em;
     width: 0.23112em;
     height: 0.20256em;
     border-radius: 0.11556em / 0.10128em;
-    background-color: var(--kimberley-door);
+    background-color: var(--maroon);
 }
-.kimberley-dot-one { left: 1.05369em; }
-.kimberley-dot-two { left: 1.81319em; }
-.kimberley-window {
+.hero-dot-a { left: 1.05369em; }
+.hero-dot-b { left: 1.81319em; }
+.hero-frame {
     position: absolute;
     inset: 0;
     margin: 0;
     clip-path: inset(0 0 0 0 round 0);
 }
-.kimberley-window picture {
-    display: contents;
-}
 
-.kimberley-window-still,
-.kimberley-window-film {
+.hero-still,
+.hero-film {
     position: absolute;
     inset: 0;
     display: block;
@@ -404,34 +426,36 @@ body.kimberley-veiled::after {
     object-fit: cover;
 }
 
-.kimberley-window-film {
+.hero-film {
     opacity: 0;
-    transition: opacity 400ms var(--kimberley-e-ui);
+    transition: opacity 400ms var(--ease-ui);
 }
-.kimberley-is-running .kimberley-window-film {
+
+.is-playing .hero-film {
     opacity: 1;
 }
-.kimberley-hello {
+
+.hero-greeting {
     position: absolute;
     left: 0;
     right: 0;
-    top: 4svh;
+    top: 5.5rem;
     margin: 0;
-    color: var(--kimberley-door);
-    font-size: clamp(0.875rem, 1.05vw, 1.125rem);
+    color: var(--maroon);
+    font-size: 1rem;
     font-weight: 380;
     letter-spacing: 0.04em;
     line-height: 1.1;
     text-align: center;
 }
 
-.kimberley-line {
+.hero-tagline {
     position: absolute;
     left: 0;
     bottom: -0.213em;
     z-index: 1;
     margin: 0;
-    color: var(--kimberley-paper);
+    color: var(--paper);
     font-size: inherit;
     font-weight: 400;
     letter-spacing: -0.03em;
@@ -439,135 +463,57 @@ body.kimberley-veiled::after {
     line-height: 1;
     white-space: nowrap;
 }
-.kimberley-sheet {
+
+.panels {
     position: relative;
     z-index: 2;
-    background: var(--kimberley-paper);
+    background: var(--paper);
 }
-.kimberley-thread {
-    display: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1;
-    width: 300%;
-    height: 100%;
-    color: var(--kimberley-haze);
-    pointer-events: none;
-}
-.kimberley-thread path {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 8;
-    stroke-linecap: round;
-    stroke-dasharray: 1;
-}
-.kimberley-panel {
+
+
+.panel {
     display: grid;
     align-content: center;
     justify-items: start;
-    gap: clamp(2rem, 5vh, 4.5rem);
-    padding-inline: clamp(24px, 6vw, 108px);
-    padding-block: clamp(4rem, 14svh, 9rem);
+    gap: 2.75rem;
+    padding-inline: 5.75rem;
+    padding-block: 7.5rem;
 }
-.kimberley-panel-two,
-.kimberley-panel-three {
-    color: var(--kimberley-ink);
+.panel-youth {
+    color: var(--ink);
 }
-.kimberley-panel-three {
-    justify-items: center;
-    text-align: center;
-}
-.kimberley-city {
-    display: none;
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-}
-.kimberley-city path {
-    fill: none;
-    stroke: none;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-dasharray: 1;
-}
-.kimberley-city .kimberley-city-ink-key {
-    stroke: var(--kimberley-door);
-    stroke-opacity: 0.93;
-}
-.kimberley-city .kimberley-city-ink-far {
-    stroke: var(--kimberley-door);
-    stroke-opacity: 0.52;
-}
-.kimberley-city .kimberley-city-ink-shade {
-    fill: var(--kimberley-door);
-    fill-opacity: 0.1;
-    translate: 3.6px -2.4px;
-}
-.kimberley-city .kimberley-city-ink-acc {
-    fill: var(--kimberley-door);
-    fill-opacity: 0.42;
-    translate: -3px 2.8px;
-}
-.kimberley-city .kimberley-city-ink-lit {
-    fill: var(--kimberley-lit);
-    fill-opacity: 0.75;
-}
-.kimberley-city-hair { stroke-width: 1.4; }
-.kimberley-city-fine { stroke-width: 2.2; }
-.kimberley-city-main { stroke-width: 3.3; }
-.kimberley-city-bold { stroke-width: 4.8; }
 
-.kimberley-brands {
+.craft-title {
     margin: 0;
-    font-size: clamp(1.5rem, 5.2vw, 4rem);
-    font-weight: 300;
-    letter-spacing: -0.025em;
-    line-height: 1.06;
-}
-.kimberley-brands-line {
-    display: block;
-    overflow: clip;
-    padding-bottom: 0.16em;
-    margin-bottom: -0.16em;
-    white-space: nowrap;
-}
-.kimberley-brands-in {
-    display: block;
-}
-.kimberley-close {
-    margin: 0;
-    font-size: clamp(2rem, 8vw, 8.5rem);
+    font-size: 7.5rem;
     font-weight: 280;
     letter-spacing: -0.03em;
     line-height: 1.02;
 }
-.kimberley-close-line,
-.kimberley-close-in {
+.craft-line,
+.craft-in {
     display: block;
 }
-.kimberley-close-in {
+.craft-in {
     position: relative;
 }
-.kimberley-close-line {
+.craft-line {
     position: relative;
     white-space: nowrap;
 }
-.kimberley-close-ruled em {
+.craft-ruled em {
     font-style: normal;
 }
-.kimberley-close-heavy {
+
+.bold-swap {
     position: relative;
     display: inline-block;
 }
-.kimberley-close-thin {
+.bold-thin {
     display: inline-block;
     clip-path: inset(-20% 0 -20% 100%);
 }
-.kimberley-close-fill {
+.bold-fill {
     position: absolute;
     top: 0;
     left: 0;
@@ -577,14 +523,14 @@ body.kimberley-veiled::after {
     transform-origin: 0 78%;
 }
 
-.kimberley-amp-pen {
+.amp-pen {
     position: absolute;
     top: 0.023em;
     left: 6.4975em;
     width: 0.6755em;
     height: 0.793em;
 }
-.kimberley-amp-nib {
+.amp-nib {
     fill: none;
     stroke: currentColor;
     stroke-width: 320;
@@ -593,7 +539,7 @@ body.kimberley-veiled::after {
     stroke-dashoffset: 1;
 }
 
-.kimberley-close-ruled::after {
+.craft-ruled::after {
     content: "";
     position: absolute;
     top: 0.8575em;
@@ -603,182 +549,189 @@ body.kimberley-veiled::after {
     background: currentColor;
     transform-origin: left;
 }
-.kimberley-panel-two {
+
+.panel-youth {
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
     align-content: stretch;
-    column-gap: clamp(1.5rem, 4vw, 4rem);
+    column-gap: 3.75rem;
     row-gap: 0;
 }
-.kimberley-lead {
+
+.youth {
     grid-area: 1 / 1;
     align-self: center;
     width: min(32rem, 100%);
-    translate: 0 7svh;
+    translate: 0 3.75rem;
 }
-.kimberley-lead-shot {
+.youth-photo {
     grid-area: 1 / 2 / 3 / 3;
     align-self: center;
     display: block;
-    width: clamp(200px, 24vw, 360px);
+    width: 22.5rem;
     height: auto;
     aspect-ratio: 3 / 4;
     object-fit: cover;
-    box-shadow: 0 0 0 1px rgb(129 161 182 / 0.6),
-        0 26px 52px -30px rgb(11 3 132 / 0.35);
+    box-shadow: 0 0 0 0.0625rem rgb(129 161 182 / 0.6),
+        0 1.625rem 3.25rem -1.875rem rgb(11 3 132 / 0.35);
 }
-.kimberley-panel-mid {
+
+.panel-tutorial {
     grid-template-columns: minmax(0, 1fr) min(22rem, 34%);
     grid-template-rows: auto;
     align-content: center;
     justify-items: start;
-    column-gap: clamp(1.5rem, 4vw, 4.5rem);
+    column-gap: 3.75rem;
 }
-.kimberley-mid-reel {
+
+.tutorial-figure {
     grid-area: 1 / 1;
     align-self: center;
     width: 100%;
     margin: 0;
 }
-.kimberley-mid-frame {
+.tutorial-frame {
     position: relative;
 }
-.kimberley-mid-film {
+.tutorial-film {
     display: block;
     width: 100%;
     height: auto;
-    background: var(--kimberley-paper);
+    background: var(--paper);
 }
-.kimberley-mid-keys {
+.tutorial-controls {
     position: absolute;
-    right: 12px;
-    bottom: 12px;
+    right: 0.75rem;
+    bottom: 0.75rem;
     display: flex;
-    gap: 8px;
+    gap: 0.5rem;
 }
-.kimberley-mid-key {
+.tutorial-button {
     min-width: 6em;
-    min-height: 44px;
+    min-height: 2.75rem;
     padding: 0.5em 1.05em;
     border: 0;
     border-radius: 999px;
     background: rgb(11 3 132 / 0.86);
-    color: var(--kimberley-paper);
+    color: var(--paper);
     font: inherit;
     font-size: 0.8125rem;
     font-weight: 560;
     letter-spacing: 0.06em;
     cursor: pointer;
-    transition: background 260ms var(--kimberley-e-ui);
+    transition: background 260ms var(--ease-ui);
 }
-.kimberley-mid-key:hover {
-    background: var(--kimberley-ink);
+.tutorial-button:hover {
+    background: var(--ink);
 }
-.kimberley-mid-key:focus-visible {
-    outline: 2px solid var(--kimberley-ink);
-    outline-offset: 3px;
+.tutorial-button:focus-visible {
+    outline: 0.125rem solid var(--ink);
+    outline-offset: 0.1875rem;
 }
-.kimberley-mid {
+.tutorial {
     grid-area: 1 / 2;
     align-self: center;
     width: 100%;
-    color: var(--kimberley-ink);
-    translate: 0 -16svh;
+    color: var(--ink);
+    translate: 0 -8.5rem;
 }
-.kimberley-mid-title {
-    margin: 0 0 1.2rem;
-    font-size: clamp(1.625rem, 2.6vw, 2.625rem);
+.tutorial-title {
+    margin: 0 0 1.1875rem;
+    font-size: 2.5rem;
     font-weight: 320;
     letter-spacing: -0.025em;
     line-height: 1.1;
     text-wrap: balance;
 }
-.kimberley-mid-copy {
+.tutorial-copy {
     margin: 0;
-    font-size: clamp(1.0625rem, 1.25vw, 1.1875rem);
+    font-size: 1.1875rem;
     line-height: 1.6;
     text-wrap: pretty;
 }
-.kimberley-lead-tail {
+
+.youth-tail {
     grid-area: 2 / 3;
     align-self: end;
     justify-self: end;
     width: min(22rem, 100%);
-    margin-bottom: clamp(3rem, 9svh, 6rem);
-    color: var(--kimberley-aside);
+    margin-bottom: 4.75rem;
+    color: var(--slate);
 }
-.kimberley-lead-title {
-    margin: 0 0 1.6rem;
-    font-size: clamp(1.625rem, 2.6vw, 2.625rem);
+.youth-title {
+    margin: 0 0 1.625rem;
+    font-size: 2.5rem;
     font-weight: 460;
     letter-spacing: -0.028em;
     line-height: 1.1;
 }
-.kimberley-lead-line {
+.youth-line {
     display: block;
     overflow: clip;
     white-space: nowrap;
     padding-bottom: 0.16em;
     margin-bottom: -0.16em;
 }
-.kimberley-lead-rise {
+.youth-rise {
     display: block;
 }
-.kimberley-lead-copy {
+.youth-copy {
     width: min(34rem, 100%);
     margin: 0 0 1.1em;
-    font-size: clamp(1.0625rem, 1.25vw, 1.1875rem);
+    font-size: 1.1875rem;
     font-weight: 400;
     line-height: 1.6;
     text-wrap: pretty;
 }
-.kimberley-lead-copy:last-child {
+.youth-copy:last-child {
     margin-bottom: 0;
 }
-.kimberley-note {
+
+.footnote {
     position: relative;
     top: 1.25rem;
     justify-self: end;
-    color: var(--kimberley-aside);
+    color: var(--slate);
     width: min(27rem, 100%);
     margin: 0;
-    font-size: clamp(1rem, 1.15vw, 1.0625rem);
+    font-size: 1.0625rem;
     font-weight: 400;
     line-height: 1.62;
     text-wrap: pretty;
 }
-@keyframes kimberley-line-by {
+
+@keyframes tagline-in {
     from { transform: translateX(100vw); }
-    to { transform: translateX(-387.85vw); }
+    to { transform: translateX(-422vw); }
 }
-@keyframes kimberley-hello-in {
+@keyframes greeting-in {
     from { opacity: 0; transform: translateY(0.6em); }
     to { opacity: 1; transform: translateY(0); }
 }
-@keyframes kimberley-hello-out {
+@keyframes greeting-out {
     0%, 10% { opacity: 1; transform: translateY(0); }
     38%, 100% { opacity: 0; transform: translateY(-0.5em); }
 }
-@keyframes kimberley-sheet-over {
+@keyframes panels-over {
     from { transform: translateY(100%); }
     to { transform: translateY(0); }
 }
 
-@keyframes kimberley-seed-one {
+@keyframes dot-fall-a {
     0% {
         transform: translate(calc(50vw - 1.16925em), calc(0.98093em - 50svh)) scale(0);
         border-radius: 0.11556em / 0.10128em;
-        animation-timing-function: var(--kimberley-e-out);
+        animation-timing-function: var(--ease-out);
     }
     22%, 27% {
         transform: translate(calc(50vw - 1.16925em), calc(0.98093em - 50svh)) scale(1);
         border-radius: 0.11556em / 0.10128em;
-        animation-timing-function: var(--kimberley-e-out);
+        animation-timing-function: var(--ease-out);
     }
     46%, 54% {
         transform: translate(calc(50vw - 1.28281em), calc(0.98093em - 50svh)) scale(1);
         border-radius: 0.10128em 0 0 0.10128em;
-        animation-timing-function: var(--kimberley-e-out);
+        animation-timing-function: var(--ease-out);
     }
     100% {
         transform: translate(0, 0) scale(1);
@@ -786,21 +739,21 @@ body.kimberley-veiled::after {
     }
 }
 
-@keyframes kimberley-seed-two {
+@keyframes dot-fall-b {
     0% {
         transform: translate(calc(50vw - 1.92875em), calc(0.98093em - 50svh)) scale(0);
         border-radius: 0.11556em / 0.10128em;
-        animation-timing-function: var(--kimberley-e-out);
+        animation-timing-function: var(--ease-out);
     }
     22%, 27% {
         transform: translate(calc(50vw - 1.92875em), calc(0.98093em - 50svh)) scale(1);
         border-radius: 0.11556em / 0.10128em;
-        animation-timing-function: var(--kimberley-e-out);
+        animation-timing-function: var(--ease-out);
     }
     46%, 54% {
         transform: translate(calc(50vw - 1.81519em), calc(0.98093em - 50svh)) scale(1);
         border-radius: 0 0.10128em 0.10128em 0;
-        animation-timing-function: var(--kimberley-e-out);
+        animation-timing-function: var(--ease-out);
     }
     100% {
         transform: translate(0, 0) scale(1);
@@ -808,16 +761,16 @@ body.kimberley-veiled::after {
     }
 }
 
-@keyframes kimberley-rise {
+@keyframes rise {
     from { transform: translateY(0.747em); }
     to { transform: translateY(0); }
 }
-@keyframes kimberley-sink {
+@keyframes sink {
     0%, 12% { transform: translateY(0); opacity: 1; }
     40%, 60% { transform: translateY(0.747em); opacity: 1; }
     70%, 100% { transform: translateY(0.747em); opacity: 0; }
 }
-@keyframes kimberley-gather-one {
+@keyframes dot-land-a {
     0%, 40% {
         transform: translate(0, 0)
                    translate(0.11356em, 0) rotate(0deg) translate(-0.11356em, 0);
@@ -834,7 +787,7 @@ body.kimberley-veiled::after {
         border-radius: 0.10128em 0 0 0.10128em;
     }
 }
-@keyframes kimberley-gather-two {
+@keyframes dot-land-b {
     0%, 40% {
         transform: translate(0, 0)
                    translate(-0.11356em, 0) rotate(0deg) translate(0.11356em, 0);
@@ -851,405 +804,325 @@ body.kimberley-veiled::after {
         border-radius: 0 0.10128em 0.10128em 0;
     }
 }
-@keyframes kimberley-aperture {
+@keyframes aperture {
     0%, 78% { clip-path: inset(50% 50% round 0); }
     84% { clip-path: inset(calc(50% - 0.10128em) calc(50% - 0.23112em) round 0.10128em); }
     98%, 100% { clip-path: inset(0 0 0 0 round 0); }
 }
-@keyframes kimberley-close-up {
+@keyframes craft-up {
     from { opacity: 0; transform: translateY(0.3em); }
     to { opacity: 1; transform: translateY(0); }
 }
-@keyframes kimberley-rise-in {
-    from { opacity: 0; transform: translateY(55svh); }
+@keyframes rise-in {
+    from { opacity: 0; transform: translateY(29.5rem); }
     to { opacity: 1; transform: translateY(0); }
 }
-@keyframes kimberley-rise-out {
+@keyframes rise-out {
     from { opacity: 1; transform: translateY(0); }
-    to { opacity: 0; transform: translateY(-38svh); }
+    to { opacity: 0; transform: translateY(-20.5rem); }
 }
-@keyframes kimberley-brands-drift {
-    from { transform: translateY(16svh); }
-    to { transform: translateY(0); }
-}
-@keyframes kimberley-pass-out {
+@keyframes pass-out {
     from { opacity: 1; transform: translateX(0); }
     to { opacity: 0; transform: translateX(-46vw); }
 }
-@keyframes kimberley-sweep-out {
+@keyframes sweep-out {
     from { transform: translateX(0); }
     to { transform: translateX(-95vw); }
 }
-@keyframes kimberley-thread-away {
-    from { translate: 0 0; }
-    to { translate: -100vw 0; }
-}
-@keyframes kimberley-thread-pan {
-    0%, 7% { transform: translateX(0); }
-    27%, 58% { transform: translateX(-100vw); }
-    79%, 100% { transform: translateX(-200vw); }
-}
 
-@keyframes kimberley-thread-draw {
-    0% { stroke-dashoffset: 1; }
-    21.04% { stroke-dashoffset: 0.65; }
-    64.33% { stroke-dashoffset: 0.3399; }
-    100% { stroke-dashoffset: 0; }
-}
-@keyframes kimberley-thread-turn {
-    from { color: var(--kimberley-haze); }
-    to { color: var(--kimberley-ink); }
-}
 
-@keyframes kimberley-lead-in {
+@keyframes copy-in {
     from { opacity: 0; transform: translateY(0.5em); }
     to { opacity: 1; transform: translateY(0); }
 }
-@keyframes kimberley-heavy-in {
+@keyframes bold-in {
     from { clip-path: inset(-20% 100% -20% 0); }
     to { clip-path: inset(-20% 0 -20% 0); }
 }
-@keyframes kimberley-heavy-out {
+@keyframes bold-out {
     from { clip-path: inset(-20% 0 -20% 0); }
     to { clip-path: inset(-20% 0 -20% 100%); }
 }
-@keyframes kimberley-heavy-lean {
+@keyframes bold-lean {
     from { transform: skewX(0deg); }
     to { transform: skewX(-10deg); }
 }
-@keyframes kimberley-rule-in {
+@keyframes rule-in {
     from { transform: scaleX(0); }
     to { transform: scaleX(1); }
 }
-@keyframes kimberley-amp-write {
+@keyframes amp-write {
     from { stroke-dashoffset: 1; }
     92%, 100% { stroke-dashoffset: 0; }
 }
-@keyframes kimberley-amp-off {
+@keyframes amp-off {
     from { opacity: 1; }
     to { opacity: 0; }
 }
-@keyframes kimberley-note-up {
-    0% { opacity: 0; transform: translate(0, 1.6rem); }
+@keyframes note-up {
+    0% { opacity: 0; transform: translate(0, 1.625rem); }
     21%, 68% { opacity: 1; transform: translate(0, 0); }
     100% { opacity: 0; transform: translate(-10vw, 0); }
 }
-@keyframes kimberley-fade {
+@keyframes fade {
     from { opacity: 0; }
 }
 
-@keyframes kimberley-shot-in {
+@keyframes shot-in {
     from { clip-path: inset(0 0 100% 0); scale: 1.06; }
     to { clip-path: inset(0 0 0 0); scale: 1; }
 }
-@keyframes kimberley-brands-up {
+@keyframes shot-grow {
+    from { scale: 1; }
+    to { scale: 1.1; }
+}
+@keyframes line-up {
     from { transform: translateY(140%); }
     to { transform: translateY(0); }
 }
 
-@keyframes kimberley-city-ink {
-    from { opacity: 0; }
-    to { opacity: 1; }
+@keyframes nav-cool {
+    to { color: var(--ink); }
 }
-@keyframes kimberley-city-draw {
-    from { stroke-dashoffset: 1; }
-    to { stroke-dashoffset: 0; }
-}
-@keyframes kimberley-fade-off {
-    from { opacity: 1; }
-    to { opacity: 0; }
-}
-@keyframes kimberley-jump-cool {
-    to { color: var(--kimberley-ink); }
-}
-@keyframes kimberley-jump-white {
+@keyframes nav-white {
     to { color: #fff; }
 }
-@keyframes kimberley-jump-warm {
-    0%, 49.8% { color: var(--kimberley-door); }
-    54%, 90% { color: var(--kimberley-ink); }
-    100% { color: var(--kimberley-door); }
+@keyframes nav-warm {
+    0%, 62.25% { color: var(--maroon); }
+    67.5%, 87.5% { color: var(--ink); }
+    100% { color: var(--maroon); }
 }
+
 @media (prefers-reduced-motion: reduce) {
-    .kimberley-stage {
-        animation: kimberley-fade 500ms var(--kimberley-e-ui) both;
+    .hero {
+        animation: fade 500ms var(--ease-ui) both;
     }
 }
 @media (prefers-reduced-motion: no-preference) {
-    .kimberley-wordmark {
-        animation: kimberley-rise 750ms 1000ms var(--kimberley-e-quart) backwards;
+    .hero-name {
+        animation: rise 750ms 1000ms var(--ease-quart) backwards;
     }
 }
+
 @supports (animation-timeline: scroll()) {
-    @media (prefers-reduced-motion: no-preference) {
+    @media (min-aspect-ratio: 11 / 10) {
+        @media (prefers-reduced-motion: no-preference) {
 
-        :root {
-            timeline-scope: --kimberley-run, --kimberley-cases, --kimberley-close;
-        }
-        .kimberley-track {
-            height: 1600svh;
-            view-timeline-name: --kimberley-run;
-            view-timeline-axis: block;
-        }
-        .kimberley-next-track {
-            view-timeline-name: --kimberley-cases;
-            view-timeline-axis: block;
-        }
-        .kimberley-end-track {
-            view-timeline-name: --kimberley-close;
-            view-timeline-axis: block;
-        }
-        .kimberley-jump {
-            animation-name: kimberley-jump-warm, kimberley-jump-cool, kimberley-jump-white;
-            animation-timeline: --kimberley-run, --kimberley-cases, --kimberley-close;
-            animation-range: contain 33.33% contain 100%, contain 70% contain 79%, contain 8% contain 22%;
-            animation-timing-function: linear, linear, linear;
-            animation-fill-mode: both, forwards, forwards;
-        }
+            :root {
+                timeline-scope: --intro, --cases, --studio, --thanks;
+            }
+            .intro-track {
+                height: 1400svh;
+                view-timeline-name: --intro;
+                view-timeline-axis: block;
+            }
+            .cases-track {
+                view-timeline-name: --cases;
+                view-timeline-axis: block;
+            }
+            .studio-track {
+                view-timeline-name: --studio;
+                view-timeline-axis: block;
+            }
+            .thanks-track {
+                view-timeline-name: --thanks;
+                view-timeline-axis: block;
+            }
+            .chapters {
+                animation-name: nav-warm, nav-cool, nav-white, nav-cool;
+                animation-timeline: --intro, --cases, --studio, --thanks;
+                animation-range: contain 38.46% contain 100%, contain 70% contain 79%,
+                    contain 4% contain 13%, contain 50% contain 70%;
+                animation-timing-function: linear, linear, linear, linear;
+                animation-fill-mode: both, forwards, forwards, forwards;
+            }
 
-                                                                .kimberley-hello {
-            animation-name: kimberley-hello-out, kimberley-hello-in;
-            animation-timeline: --kimberley-run, auto;
-            animation-range: contain 0% contain 11.65%;
-            animation-duration: auto, 700ms;
-            animation-delay: 0s, 450ms;
-            animation-timing-function: linear, var(--kimberley-e-quart);
-            animation-fill-mode: both, backwards;
-        }
-        .kimberley-line {
-            animation: kimberley-line-by linear both;
-            animation-timeline: --kimberley-run;
-            animation-range: contain 11.65% contain 24.47%;
-        }
+                                                                    .hero-greeting {
+                animation-name: greeting-out, greeting-in;
+                animation-timeline: --intro, auto;
+                animation-range: contain 0% contain 13.44%;
+                animation-duration: auto, 700ms;
+                animation-delay: 0s, 450ms;
+                animation-timing-function: linear, var(--ease-quart);
+                animation-fill-mode: both, backwards;
+            }
+            .hero-tagline {
+                animation: tagline-in linear both;
+                animation-timeline: --intro;
+                animation-range: contain 13.44% contain 28.23%;
+            }
 
-        .kimberley-stage {
-            position: sticky;
-            top: 0;
-        }
-        .kimberley-panel {
-            position: absolute;
-            inset: 0;
-            padding-block: 0;
-            pointer-events: none;
-        }
-        .kimberley-panel > * {
-            pointer-events: auto;
-        }
-        .kimberley-panel-mid {
-            z-index: 1;
-        }
-        .kimberley-thread {
-            display: none;
-        }
-        .kimberley-sheet {
-            position: sticky;
-            top: 0;
-            height: 100svh;
-            animation: kimberley-sheet-over linear both;
-            animation-timeline: --kimberley-run;
-            animation-range: contain 24.64% contain 25.98%;
-        }
+            .hero {
+                position: sticky;
+                top: 0;
+            }
+            .panel {
+                position: absolute;
+                inset: 0;
+                padding-block: 0;
+                pointer-events: none;
+            }
+            .panel > * {
+                pointer-events: auto;
+            }
+            .panel-tutorial {
+                z-index: 1;
+            }
+            .panels {
+                position: sticky;
+                top: 0;
+                height: 100svh;
+                animation: panels-over linear both;
+                animation-timeline: --intro;
+                animation-range: contain 29.2% contain 30.75%;
+            }
 
-        .kimberley-panel-one .kimberley-close-in {
-            animation: kimberley-close-up linear both;
-            animation-timeline: --kimberley-run;
-        }
-        .kimberley-close-line:nth-of-type(1) .kimberley-close-in { animation-range: contain 26.8% contain 27.87%; }
-        .kimberley-close-line:nth-of-type(2) .kimberley-close-in { animation-range: contain 27.47% contain 28.53%; }
-        .kimberley-close-line:nth-of-type(3) .kimberley-close-in { animation-range: contain 28.14% contain 29.21%; }
+            .panel-craft .craft-in {
+                animation: craft-up linear both;
+                animation-timeline: --intro;
+            }
+            .craft-line:nth-of-type(1) .craft-in { animation-range: contain 30.92% contain 32.16%; }
+            .craft-line:nth-of-type(2) .craft-in { animation-range: contain 31.7% contain 32.92%; }
+            .craft-line:nth-of-type(3) .craft-in { animation-range: contain 32.47% contain 33.7%; }
 
-        .kimberley-close-ruled::after {
-            animation: kimberley-rule-in linear both;
-            animation-timeline: --kimberley-run;
-            animation-range: contain 29.43% contain 30.16%;
-        }
-        .kimberley-close-thin {
-            animation: kimberley-heavy-out linear both;
-            animation-timeline: --kimberley-run;
-            animation-range: contain 34.14% contain 35%;
-        }
-        .kimberley-close-fill {
-            animation-name: kimberley-heavy-in, kimberley-heavy-lean;
-            animation-timeline: --kimberley-run, --kimberley-run;
-            animation-range: contain 34.14% contain 35%, contain 35.05% contain 35.68%;
-            animation-timing-function: linear, linear;
-            animation-fill-mode: both, both;
-        }
-        .kimberley-amp {
-            animation: kimberley-amp-off linear both;
-            animation-timeline: --kimberley-run;
-            animation-range: contain 30.38% contain 31.39%;
-        }
-        .kimberley-amp-nib {
-            animation: kimberley-amp-write linear both;
-            animation-timeline: --kimberley-run;
-            animation-range: contain 30.38% contain 34.36%;
-        }
-        .kimberley-panel-one .kimberley-close-line {
-            animation: kimberley-sweep-out linear both;
-            animation-timeline: --kimberley-run;
-        }
-        .kimberley-panel-one .kimberley-close-line:nth-of-type(1) { animation-range: contain 36.44% contain 41.48%; }
-        .kimberley-panel-one .kimberley-close-line:nth-of-type(2) { animation-range: contain 37.28% contain 42.32%; }
-        .kimberley-panel-one .kimberley-close-line:nth-of-type(3) { animation-range: contain 38.12% contain 43.16%; }
-        .kimberley-thread {
-            animation-name: kimberley-thread-pan, kimberley-thread-turn, kimberley-thread-away;
-            animation-timeline: --kimberley-run, --kimberley-run, --kimberley-run;
-            animation-range: contain 33.32% contain 70%, contain 35.28% contain 43.68%, contain 72.67% contain 80.5%;
-            animation-timing-function: linear, linear, linear;
-            animation-fill-mode: both, both, both;
-        }
-        .kimberley-thread path {
-            animation: kimberley-thread-draw linear both;
-            animation-timeline: --kimberley-run;
-            animation-range: contain 26.8% contain 70%;
-        }
+            .craft-ruled::after {
+                animation: rule-in linear both;
+                animation-timeline: --intro;
+                animation-range: contain 33.96% contain 34.8%;
+            }
+            .bold-thin {
+                animation: bold-out linear both;
+                animation-timeline: --intro;
+                animation-range: contain 39.39% contain 40.38%;
+            }
+            .bold-fill {
+                animation-name: bold-in, bold-lean;
+                animation-timeline: --intro, --intro;
+                animation-range: contain 39.39% contain 40.38%, contain 40.44% contain 41.17%;
+                animation-timing-function: linear, linear;
+                animation-fill-mode: both, both;
+            }
+            .amp {
+                animation: amp-off linear both;
+                animation-timeline: --intro;
+                animation-range: contain 35.05% contain 36.22%;
+            }
+            .amp-nib {
+                animation: amp-write linear both;
+                animation-timeline: --intro;
+                animation-range: contain 35.05% contain 39.65%;
+            }
+            .panel-craft .craft-line {
+                animation: sweep-out linear both;
+                animation-timeline: --intro;
+            }
+            .panel-craft .craft-line:nth-of-type(1) { animation-range: contain 42.05% contain 47.86%; }
+            .panel-craft .craft-line:nth-of-type(2) { animation-range: contain 43.02% contain 48.83%; }
+            .panel-craft .craft-line:nth-of-type(3) { animation-range: contain 43.98% contain 49.8%; }
 
-        .kimberley-lead-rise {
-            animation: kimberley-brands-up linear both;
-            animation-timeline: --kimberley-run;
-        }
-        .kimberley-lead-line:nth-of-type(1) .kimberley-lead-rise { animation-range: contain 43.4% contain 47.15%; }
-        .kimberley-lead-line:nth-of-type(2) .kimberley-lead-rise { animation-range: contain 44.24% contain 47.99%; }
-        .kimberley-lead-line:nth-of-type(3) .kimberley-lead-rise { animation-range: contain 45.08% contain 48.84%; }
-        .kimberley-lead-copy {
-            animation: kimberley-lead-in linear both;
-            animation-timeline: --kimberley-run;
-        }
-        .kimberley-lead-copy:nth-of-type(1) { animation-range: contain 46.38% contain 50.14%; }
-        .kimberley-lead-copy:nth-of-type(2) { animation-range: contain 47.76% contain 51.52%; }
+            .youth-rise {
+                animation: line-up linear both;
+                animation-timeline: --intro;
+            }
+            .youth-line:nth-of-type(1) .youth-rise { animation-range: contain 50.08% contain 54.4%; }
+            .youth-line:nth-of-type(2) .youth-rise { animation-range: contain 51.05% contain 55.37%; }
+            .youth-line:nth-of-type(3) .youth-rise { animation-range: contain 52.02% contain 56.35%; }
+            .youth-copy {
+                animation: copy-in linear both;
+                animation-timeline: --intro;
+            }
+            .youth-copy:nth-of-type(1) { animation-range: contain 53.52% contain 57.85%; }
+            .youth-copy:nth-of-type(2) { animation-range: contain 55.11% contain 59.45%; }
 
-        .kimberley-lead-shot {
-            animation-name: kimberley-shot-in, kimberley-pass-out;
-            animation-timeline: --kimberley-run, --kimberley-run;
-            animation-range: contain 42.93% contain 47.84%, contain 56.37% contain 62.07%;
-            animation-timing-function: linear, linear;
-            animation-fill-mode: both, both;
-        }
-        .kimberley-mid-reel {
-            animation-name: kimberley-rise-in, kimberley-rise-out;
-            animation-timeline: --kimberley-run, --kimberley-run;
-            animation-range: contain 62.4% contain 68.4%, contain 72.67% contain 77.33%;
-            animation-timing-function: linear, linear;
-            animation-fill-mode: both, forwards;
-        }
-        .kimberley-mid {
-            animation-name: kimberley-rise-in, kimberley-rise-out;
-            animation-timeline: --kimberley-run, --kimberley-run;
-            animation-range: contain 63.5% contain 69.5%, contain 73.5% contain 78.17%;
-            animation-timing-function: linear, linear;
-            animation-fill-mode: both, forwards;
-        }
-        .kimberley-lead {
-            animation: kimberley-pass-out linear both;
-            animation-timeline: --kimberley-run;
-            animation-range: contain 56.37% contain 62.07%;
-        }
-        .kimberley-lead-tail {
-            animation: kimberley-pass-out linear both;
-            animation-timeline: --kimberley-run;
-            animation-range: contain 56.37% contain 62.07%;
-        }
-        .kimberley-lead-tail .kimberley-lead-copy { animation-range: contain 49.22% contain 52.98%; }
-        .kimberley-city {
-            display: block;
-            animation: kimberley-fade-off linear both;
-            animation-timeline: --kimberley-run;
-            animation-range: contain 97.32% contain 99.62%;
-        }
-        .kimberley-work-track {
-            margin-top: -100svh;
-        }
-        .kimberley-city path {
-            animation-name: kimberley-city-draw;
-            animation-timing-function: linear;
-            animation-fill-mode: both;
-            animation-timeline: --kimberley-run;
-        }
-        .kimberley-city .kimberley-city-farwin,
-        .kimberley-city .kimberley-city-win,
-        .kimberley-city .kimberley-city-plate,
-        .kimberley-city .kimberley-city-shade,
-        .kimberley-city .kimberley-city-glow,
-        .kimberley-city .kimberley-city-lit {
-            animation-name: kimberley-city-ink;
-        }
-        .kimberley-city .kimberley-city-street { animation-range: contain 78.07% contain 81.29%; }
-        .kimberley-city .kimberley-city-cobble { animation-range: contain 78.99% contain 82.05%; }
-        .kimberley-city .kimberley-city-far { animation-range: contain 79.52% contain 82.74%; }
-        .kimberley-city .kimberley-city-shell { animation-range: contain 80.14% contain 83.66%; }
-        .kimberley-city .kimberley-city-roof { animation-range: contain 81.06% contain 84.74%; }
-        .kimberley-city .kimberley-city-floor { animation-range: contain 81.98% contain 85.35%; }
-        .kimberley-city .kimberley-city-ground { animation-range: contain 82.59% contain 85.96%; }
-        .kimberley-city .kimberley-city-lamp { animation-range: contain 83.20% contain 86.42%; }
-        .kimberley-city .kimberley-city-farwin { animation-range: contain 81.98% contain 84.35%; }
-        .kimberley-city .kimberley-city-win { animation-range: contain 82.74% contain 86.58%; }
-        .kimberley-city .kimberley-city-plate { animation-range: contain 84.97% contain 87.73%; }
-        .kimberley-city .kimberley-city-shade { animation-range: contain 85.66% contain 88.26%; }
-        .kimberley-city .kimberley-city-glow { animation-range: contain 87.73% contain 89.64%; }
-        .kimberley-city .kimberley-city-lit { animation-range: contain 88.11% contain 90.41%; }
-        .kimberley-brands {
-            animation-name: kimberley-brands-drift, kimberley-fade-off;
-            animation-timeline: --kimberley-run, --kimberley-run;
-            animation-range: contain 78.5% contain 85.5%, contain 97.32% contain 100%;
-            animation-timing-function: linear, linear;
-            animation-fill-mode: both, both;
-        }
-        .kimberley-brands-in {
-            animation: kimberley-brands-up linear both;
-            animation-timeline: --kimberley-run;
-        }
-        .kimberley-brands-line:nth-of-type(1) .kimberley-brands-in { animation-range: contain 79.2% contain 83.3%; }
-        .kimberley-brands-line:nth-of-type(2) .kimberley-brands-in { animation-range: contain 80.04% contain 84.14%; }
-        .kimberley-brands-line:nth-of-type(3) .kimberley-brands-in { animation-range: contain 80.87% contain 84.97%; }
+            .youth-photo {
+                animation-name: shot-in, shot-grow, pass-out;
+                animation-timeline: --intro, --intro, --intro;
+                animation-range: contain 49.53% contain 55.2%, contain 55.2% contain 71.62%,
+                    contain 65.04% contain 71.62%;
+                animation-timing-function: linear, linear, linear;
+                animation-fill-mode: both, forwards, both;
+            }
+            .tutorial-figure {
+                animation-name: rise-in, rise-out;
+                animation-timeline: --intro, --intro;
+                animation-range: contain 72% contain 78.92%, contain 83.85% contain 89.23%;
+                animation-timing-function: linear, linear;
+                animation-fill-mode: both, forwards;
+            }
+            .tutorial {
+                animation-name: rise-in, rise-out;
+                animation-timeline: --intro, --intro;
+                animation-range: contain 73.27% contain 80.19%, contain 84.81% contain 90.2%;
+                animation-timing-function: linear, linear;
+                animation-fill-mode: both, forwards;
+            }
+            .youth {
+                animation: pass-out linear both;
+                animation-timeline: --intro;
+                animation-range: contain 65.04% contain 71.62%;
+            }
+            .youth-tail {
+                animation: pass-out linear both;
+                animation-timeline: --intro;
+                animation-range: contain 65.04% contain 71.62%;
+            }
+            .youth-tail .youth-copy { animation-range: contain 56.79% contain 61.13%; }
+            .today-track {
+                margin-top: -200svh;
+            }
 
-        .kimberley-panel-one .kimberley-note {
-            animation: kimberley-note-up linear both;
-            animation-timeline: --kimberley-run;
-            animation-range: contain 32.48% contain 39.48%;
-        }
-        .kimberley-wordmark {
-            animation-name: kimberley-sink, kimberley-rise;
-            animation-timeline: --kimberley-run, auto;
-            animation-range: contain 0% contain 11.65%;
-            animation-duration: auto, 750ms;
-            animation-delay: 0s, 1000ms;
-            animation-timing-function: linear, var(--kimberley-e-quart);
-            animation-fill-mode: both, backwards;
-        }
-        .kimberley-dot {
-            animation-timeline: --kimberley-run, auto;
-            animation-range: contain 0% contain 11.65%;
-            animation-duration: auto, 1700ms;
-            animation-timing-function: linear, linear;
-            animation-fill-mode: both, none;
-        }
-        .kimberley-dot-one { animation-name: kimberley-gather-one, kimberley-seed-one; }
-        .kimberley-dot-two { animation-name: kimberley-gather-two, kimberley-seed-two; }
-        .kimberley-window {
-            animation: kimberley-aperture linear both;
-            animation-timeline: --kimberley-run;
-            animation-range: contain 0% contain 11.65%;
+            .panel-craft .footnote {
+                animation: note-up linear both;
+                animation-timeline: --intro;
+                animation-range: contain 37.48% contain 45.55%;
+            }
+            .hero-name {
+                animation-name: sink, rise;
+                animation-timeline: --intro, auto;
+                animation-range: contain 0% contain 13.44%;
+                animation-duration: auto, 750ms;
+                animation-delay: 0s, 1000ms;
+                animation-timing-function: linear, var(--ease-quart);
+                animation-fill-mode: both, backwards;
+            }
+            .hero-dot {
+                animation-timeline: --intro, auto;
+                animation-range: contain 0% contain 13.44%;
+                animation-duration: auto, 1700ms;
+                animation-timing-function: linear, linear;
+                animation-fill-mode: both, none;
+            }
+            .hero-dot-a { animation-name: dot-land-a, dot-fall-a; }
+            .hero-dot-b { animation-name: dot-land-b, dot-fall-b; }
+            .hero-frame {
+                animation: aperture linear both;
+                animation-timeline: --intro;
+                animation-range: contain 0% contain 13.44%;
+            }
         }
     }
 }
-.kimberley-vote {
-    background: var(--kimberley-paper);
-    color: var(--kimberley-ink);
+
+.sampo {
+    background: var(--paper);
+    color: var(--ink);
 }
-.kimberley-vote-track {
+.sampo-track {
     position: relative;
     height: 650svh;
 }
-.kimberley-end {
-    background: var(--kimberley-door);
-    color: var(--kimberley-paper);
+.studio,
+
+.embed {
+    background: var(--maroon);
+    color: var(--paper);
 }
-.kimberley-end-track {
+.embed-track {
     position: relative;
-    height: 750svh;
+    height: 400svh;
 }
-.kimberley-end-stage {
+.embed-stage,
+.studio-stage {
     position: sticky;
     top: 0;
     z-index: 4;
@@ -1257,17 +1130,174 @@ body.kimberley-veiled::after {
     grid-template-columns: minmax(0, 24rem) minmax(0, 1fr);
     align-content: center;
     align-items: center;
-    column-gap: clamp(1.25rem, 3vw, 3rem);
-    padding-inline: clamp(24px, 6vw, 108px);
-    padding-block: clamp(2.5rem, 7svh, 4.5rem);
+    column-gap: 2.75rem;
+    padding-inline: 5.75rem;
+    padding-block: 3.75rem;
     height: 100svh;
     overflow: clip;
-    background: var(--kimberley-door);
 }
-.kimberley-push .kimberley-end-stage {
-    clip-path: inset(0 0 0 calc((1 - var(--kimberley-shut, 1)) * 100%));
+.embed-stage {
+    background: color-mix(in srgb, var(--maroon)
+        calc(var(--read, 1) * 100%), transparent);
 }
-.kimberley-end-own {
+.embed-words {
+    opacity: var(--read, 1);
+    translate: 0 calc((1 - var(--read, 1)) * 1.1875rem);
+    font-size: 1.25rem;
+    line-height: 1.5;
+    text-wrap: pretty;
+}
+.embed-title {
+    margin: 0 0 0.8em;
+    font-size: 2.25rem;
+    font-weight: 460;
+    letter-spacing: -0.028em;
+    line-height: 1.12;
+}
+.embed-words p {
+    margin: 0;
+}
+.embed-frame {
+    position: relative;
+    width: 100%;
+    max-height: 42rem;
+    aspect-ratio: 16 / 9;
+    justify-self: center;
+    overflow: clip;
+    background: var(--paper);
+}
+
+.js .embed-frame {
+    clip-path: inset(0 0 0 calc((1 - var(--pane, 1)) * 100%));
+}
+
+.embed-shot {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.embed-words {
+    opacity: calc(var(--read, 1) * (1 - var(--dim, 0)));
+}
+.embed-frame {
+    opacity: calc(1 - var(--dim, 0));
+    translate: 0 calc(var(--dim, 0) * -2rem);
+}
+
+.thanks {
+    background: var(--paper);
+    color: var(--ink);
+}
+.thanks-track {
+    position: relative;
+    height: 420svh;
+}
+.js .thanks-track {
+    margin-top: -220svh;
+}
+.thanks-stage {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    height: 100svh;
+    overflow: clip;
+    padding-inline: 5.75rem;
+    background: var(--paper);
+}
+.js .thanks-stage {
+    clip-path: inset(calc((1 - var(--curtain, 1)) * 100%) 0 0 0);
+}
+.thanks-shot {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: calc(1 - var(--fade, 1));
+    scale: calc(1 + var(--fade, 1) * 0.04);
+}
+.thanks-words {
+    position: relative;
+    text-align: center;
+    opacity: var(--greet, 1);
+    translate: 0 calc((1 - var(--greet, 1)) * 1.5rem);
+}
+.thanks-word {
+    margin: 0 0 2rem;
+    font-size: 4.5rem;
+    font-weight: 280;
+    letter-spacing: -0.03em;
+    line-height: 1.04;
+}
+.thanks-name {
+    margin: 0 0 0.75rem;
+    font-size: 1.4375rem;
+    font-weight: 460;
+    letter-spacing: -0.015em;
+}
+.thanks-links {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 1.1875rem;
+    line-height: 1.7;
+}
+.thanks-links a {
+    color: inherit;
+    text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+    text-underline-offset: 0.22em;
+    transition: text-decoration-color 250ms var(--ease-ui);
+}
+.thanks-links a:hover {
+    text-decoration-color: currentColor;
+}
+.thanks-links a:focus-visible {
+    outline: 0.125rem solid var(--ink);
+    outline-offset: 0.1875rem;
+    border-radius: 0.125rem;
+}
+
+.embed-live {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1440px;
+    height: 1160px;
+    border: 0;
+    transform-origin: 0 0;
+    scale: var(--shell, 1);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.is-loaded {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .embed-live {
+        transition: opacity 600ms var(--ease-ui);
+    }
+}
+
+.studio-track {
+    position: relative;
+    height: 1130svh;
+}
+.studio-stage {
+    background: var(--maroon);
+}
+
+.js .studio-stage {
+    clip-path: inset(0 0 0 calc((1 - var(--shut, 1)) * 100%));
+}
+
+.statement {
     position: absolute;
     inset: 0;
     z-index: 2;
@@ -1275,72 +1305,111 @@ body.kimberley-veiled::after {
     align-content: center;
     justify-items: center;
     margin: 0;
-    padding-inline: clamp(24px, 6vw, 108px);
-    font-size: clamp(1.0625rem, 2.6vw, 2.375rem);
+    padding-inline: 5.75rem;
+    background: radial-gradient(64% 52% at 50% 50%, rgb(255 255 255 / 0.075), transparent 72%);
+    font-size: 4.25rem;
     font-weight: 260;
     letter-spacing: -0.018em;
-    line-height: 1.16;
+    line-height: 1.06;
     text-align: center;
-    opacity: var(--kimberley-own, 1);
-    translate: 0 calc((1 - var(--kimberley-own, 1)) * -2.2rem);
+    opacity: var(--own, 1);
+    translate: 0 calc((1 - var(--own, 1)) * -2.25rem);
+    scale: calc(1.05 - var(--drift, 1) * 0.05);
     pointer-events: none;
 }
-.kimberley-end-own-line {
+.statement-line {
     display: block;
     overflow: clip;
     white-space: nowrap;
-    padding-bottom: 0.14em;
-    margin-bottom: -0.14em;
+    padding: 0 0.16em 0.14em;
+    margin: 0 -0.16em -0.14em;
 }
-.kimberley-end-own-rise {
-    display: block;
-    translate: 0 calc((1 - var(--kimberley-tell, 1)) * 130%);
+.statement-char {
+    visibility: hidden;
 }
-.kimberley-end-own .kimberley-end-logo {
-    width: min(12rem, 58%);
-    margin-bottom: clamp(1.3rem, 3.6svh, 2.3rem);
-    opacity: 1;
-    clip-path: inset(0 calc((1 - var(--kimberley-sign, 1)) * 100%) 0 0);
-    scale: calc(0.965 + var(--kimberley-sign, 1) * 0.035);
+
+.is-typed {
+    visibility: visible;
 }
-.kimberley-end-words {
+
+.statement-bold {
+    font-weight: 540;
+    letter-spacing: -0.03881em;
+}
+.statement-split {
+    position: relative;
+    display: inline-block;
+    font-weight: inherit;
+    letter-spacing: inherit;
+}
+.statement-thin {
+    display: inline-block;
+    clip-path: inset(-25% 0 -25% 0);
+    transition: clip-path 460ms var(--ease-out);
+}
+.statement-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-weight: 540;
+    letter-spacing: -0.03881em;
+    clip-path: inset(-25% 100% -25% 0);
+    transform: skewX(0deg);
+    transform-origin: 0 78%;
+    transition: clip-path 460ms var(--ease-out),
+        transform 380ms var(--ease-out) 340ms;
+}
+
+.is-swapped .statement-thin {
+    clip-path: inset(-25% 0 -25% 100%);
+}
+.is-swapped .statement-fill {
+    clip-path: inset(-25% 0 -25% 0);
+    transform: skewX(-10deg);
+}
+
+.statement .studio-logo {
+    width: min(13rem, 50%);
+    margin-bottom: 4.75rem;
+}
+
+.studio-words {
     display: grid;
-    font-size: clamp(0.9375rem, 1.1vw, 1rem);
+    font-size: 1.25rem;
     line-height: 1.5;
     text-wrap: pretty;
 }
-.kimberley-end-said {
+.studio-copy {
     grid-area: 1 / 1;
     align-self: center;
-    opacity: var(--kimberley-glow, 1);
-    translate: 0 calc((1 - var(--kimberley-glow, 1)) * 1.5rem);
+    opacity: var(--glow, 1);
+    translate: 0 calc((1 - var(--glow, 1)) * 1.5rem);
 }
-.kimberley-end-tag {
+.studio-tag {
     margin: 0 0 0.8em;
-    font-size: clamp(1.1875rem, 2.4vw, 2.1875rem);
+    font-size: 2.25rem;
     font-weight: 460;
     letter-spacing: -0.028em;
     line-height: 1.12;
 }
-.kimberley-end-said p {
+.studio-copy p {
     margin: 0;
 }
-.kimberley-end-logo {
+.studio-logo {
     display: block;
     height: auto;
-    opacity: 0.94;
 }
-.kimberley-end-reel {
+.studio-reel {
     position: relative;
     width: 100%;
-    max-height: 78svh;
+    max-height: 42rem;
     aspect-ratio: 16 / 9;
     justify-self: center;
     overflow: clip;
-    opacity: var(--kimberley-lens, 1);
-    translate: 0 calc((1 - var(--kimberley-lens, 1)) * 2rem);
+    opacity: var(--lens, 1);
+    translate: 0 calc((1 - var(--lens, 1)) * 2rem);
 }
-.kimberley-end-film {
+.studio-film {
     position: absolute;
     inset: 0;
     display: block;
@@ -1348,111 +1417,111 @@ body.kimberley-veiled::after {
     height: 100%;
     object-fit: cover;
 }
-.kimberley-end-keys {
-    position: absolute;
-    right: 14px;
-    bottom: 14px;
-    z-index: 3;
-    opacity: var(--kimberley-turn, 1);
-    pointer-events: none;
+
+.js .studio-film-two {
+    clip-path: inset(0 0 0 calc((1 - var(--turn, 1)) * 100%));
 }
-.kimberley-end-keys .kimberley-mid-key {
-    pointer-events: auto;
+.js .studio-film-three {
+    clip-path: inset(0 0 0 calc((1 - var(--veer, 1)) * 100%));
 }
-.kimberley-push .kimberley-end-next {
-    clip-path: inset(0 calc((1 - var(--kimberley-turn, 1)) * 100%) 0 0);
+.sampo-words,
+
+.brochure {
+    opacity: calc(1 - var(--hush, 0));
+    translate: calc(var(--hush, 0) * -14vw) 0;
 }
-.kimberley-vote-words,
-.kimberley-vote-book {
-    opacity: calc(1 - var(--kimberley-hush, 0));
-    translate: calc(var(--kimberley-hush, 0) * -14vw) 0;
-}
-.kimberley-vote-leafs,
-.kimberley-last-shot {
-    width: min(52vw, 48rem);
+.brochure-pages,
+
+.print-shot {
+    width: min(49.25rem, 48rem);
     max-width: 100%;
     height: auto;
-    max-height: 72svh;
+    max-height: 38.75rem;
     aspect-ratio: 1399 / 991;
     justify-self: center;
 }
-.kimberley-vote-book {
+
+.brochure {
     position: relative;
     justify-self: center;
     margin: 0;
 }
-.kimberley-vote-leafs {
+.brochure-pages {
     position: relative;
 }
-.kimberley-vote-leaf {
+.brochure-page {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    translate: calc(var(--kimberley-fan, 1) * var(--kimberley-deep, 0) * 0.8%)
-        calc(var(--kimberley-fan, 1) * var(--kimberley-deep, 0) * 1.2%);
-    rotate: calc(var(--kimberley-fan, 1) * var(--kimberley-deep, 0) * 1.4deg);
-    scale: calc(1 - var(--kimberley-fan, 1) * var(--kimberley-deep, 0) * 0.022);
+    translate: calc(var(--fan, 1) * var(--deep, 0) * 0.8%)
+        calc(var(--fan, 1) * var(--deep, 0) * 1.2%);
+    rotate: calc(var(--fan, 1) * var(--deep, 0) * 1.4deg);
+    scale: calc(1 - var(--fan, 1) * var(--deep, 0) * 0.022);
     cursor: pointer;
 }
-.kimberley-vote-turned {
+
+.is-turned {
     translate: -6% -9%;
     rotate: -2.5deg;
     scale: 1.015;
     opacity: 0;
     pointer-events: none;
 }
+
 @media (prefers-reduced-motion: no-preference) {
-    .kimberley-vote-leaf {
-        transition: translate 900ms var(--kimberley-e-quart), rotate 900ms var(--kimberley-e-quart),
-            scale 900ms var(--kimberley-e-quart), opacity 700ms var(--kimberley-e-ui);
+    .brochure-page {
+        transition: translate 900ms var(--ease-quart), rotate 900ms var(--ease-quart),
+            scale 900ms var(--ease-quart), opacity 700ms var(--ease-ui);
     }
 }
-.kimberley-vote-keys {
+
+.brochure-controls {
     position: absolute;
-    right: 14px;
-    bottom: 14px;
+    right: 0.875rem;
+    bottom: 0.875rem;
     z-index: 10;
     display: flex;
-    gap: 10px;
-    opacity: var(--kimberley-read, 1);
+    gap: 0.625rem;
+    opacity: var(--read, 1);
 }
-.kimberley-vote-key {
+.brochure-button {
     display: grid;
     place-items: center;
-    width: 44px;
-    height: 44px;
+    width: 2.75rem;
+    height: 2.75rem;
     padding: 0;
     border: 1.5px solid rgb(255 255 255 / 0.9);
     border-radius: 999px;
     background: none;
     color: #fff;
     cursor: pointer;
-    filter: drop-shadow(0 1px 3px rgb(0 0 0 / 0.45));
-    transition: border-color 260ms var(--kimberley-e-ui), opacity 260ms var(--kimberley-e-ui);
+    filter: drop-shadow(0 0.0625rem 0.1875rem rgb(0 0 0 / 0.45));
+    transition: border-color 260ms var(--ease-ui), opacity 260ms var(--ease-ui);
 }
-.kimberley-vote-key svg {
-    width: 20px;
-    height: 20px;
+.brochure-button svg {
+    width: 1.25rem;
+    height: 1.25rem;
     fill: none;
     stroke: currentColor;
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
-.kimberley-vote-key:hover:not(:disabled) {
+.brochure-button:hover:not(:disabled) {
     border-color: #fff;
 }
-.kimberley-vote-key:disabled {
+.brochure-button:disabled {
     opacity: 0.3;
     cursor: default;
 }
-.kimberley-vote-key:focus-visible {
-    outline: 2px solid #fff;
-    outline-offset: 3px;
-    box-shadow: 0 0 0 5px #000;
+.brochure-button:focus-visible {
+    outline: 0.125rem solid #fff;
+    outline-offset: 0.1875rem;
+    box-shadow: 0 0 0 0.3125rem #000;
 }
-.kimberley-quiet {
+
+.visually-hidden {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -1461,13 +1530,14 @@ body.kimberley-veiled::after {
     clip-path: inset(50%);
     white-space: nowrap;
 }
-.kimberley-last-shot {
-    clip-path: inset(calc((1 - var(--kimberley-lay, 1)) * 100%) 0 0 0);
-    scale: calc(0.92 + var(--kimberley-lay, 1) * 0.08);
-    rotate: calc((1 - var(--kimberley-lay, 1)) * -2.4deg);
+
+.print-shot {
+    clip-path: inset(calc((1 - var(--lay, 1)) * 100%) 0 0 0);
+    scale: calc(0.92 + var(--lay, 1) * 0.08);
+    rotate: calc((1 - var(--lay, 1)) * -2.4deg);
 }
-.kimberley-vote-stage,
-.kimberley-last-stage {
+.sampo-stage,
+.print-stage {
     position: sticky;
     top: 0;
     z-index: 4;
@@ -1475,133 +1545,424 @@ body.kimberley-veiled::after {
     grid-template-columns: minmax(0, 28rem) minmax(0, 1fr);
     align-content: center;
     align-items: center;
-    column-gap: clamp(1.25rem, 3vw, 3rem);
-    padding-inline: clamp(24px, 6vw, 108px);
-    padding-block: clamp(2.5rem, 7svh, 4.5rem);
+    column-gap: 2.75rem;
+    padding-inline: 5.75rem;
+    padding-block: 3.75rem;
     height: 100svh;
     overflow: clip;
-    background: var(--kimberley-paper);
+    background: var(--paper);
 }
-.kimberley-push .kimberley-vote-stage {
-    clip-path: inset(calc((1 - var(--kimberley-lid, 1)) * 100%) 0 0 0);
+
+.js .sampo-stage {
+    clip-path: inset(calc((1 - var(--lid, 1)) * 100%) 0 0 0);
 }
-.kimberley-vote-words > * {
-    opacity: var(--kimberley-read, 1);
-    translate: 0 calc((1 - var(--kimberley-read, 1)) * 1.6rem);
+
+.sampo-words > * {
+    opacity: var(--read, 1);
+    translate: 0 calc((1 - var(--read, 1)) * 1.625rem);
 }
-.kimberley-last-words {
-    opacity: calc(1 - var(--kimberley-away, 0));
-    translate: 0 calc(var(--kimberley-away, 0) * -3.5rem);
+
+.print-words {
+    opacity: calc(1 - var(--away, 0));
+    translate: 0 calc(var(--away, 0) * -3.5rem);
 }
-.kimberley-vote-words {
-    font-size: clamp(0.9375rem, 1.1vw, 1rem);
+
+.sampo-words {
+    font-size: 1rem;
     line-height: 1.5;
     text-wrap: pretty;
 }
-.kimberley-vote-title {
+.sampo-title {
     margin: 0 0 1.2em;
-    font-size: clamp(1.1875rem, 2.4vw, 2.1875rem);
+    font-size: 2.25rem;
     font-weight: 460;
     letter-spacing: -0.028em;
     line-height: 1.12;
 }
-.kimberley-vote-line {
+.sampo-line {
     display: block;
     white-space: nowrap;
 }
-.kimberley-vote-words p {
+.sampo-words p {
     margin: 0 0 1.1em;
-    color: var(--kimberley-ink);
+    color: var(--ink);
 }
-@media (max-aspect-ratio: 11 / 10) {
-    .kimberley-vote-stage {
-        grid-template-columns: minmax(0, 1fr);
-        align-content: center;
-        row-gap: clamp(1.5rem, 4svh, 2.5rem);
-    }
-    .kimberley-vote-leafs,
-    .kimberley-last-shot {
-        width: min(88vw, 32rem);
-    }
+
+.print {
+    background: var(--paper);
+    color: var(--ink);
 }
-.kimberley-last {
-    background: var(--kimberley-paper);
-    color: var(--kimberley-ink);
-}
-.kimberley-last-track {
+.print-track {
     position: relative;
     height: 650svh;
 }
-.kimberley-push .kimberley-vote-track {
+
+.js .sampo-track {
     margin-top: -250svh;
 }
-.kimberley-push .kimberley-last-track {
+.js .print-track {
     margin-top: -250svh;
 }
-.kimberley-push .kimberley-end-track {
+.js .embed-track {
+    margin-top: -300svh;
+}
+.js .studio-track {
     margin-top: -250svh;
 }
-.kimberley-push .kimberley-last-stage {
-    clip-path: inset(calc((1 - var(--kimberley-slide, 1)) * 100%) 0 0 0);
+.js .print-stage {
+    clip-path: inset(calc((1 - var(--slide, 1)) * 100%) 0 0 0);
 }
-.kimberley-last-words {
-    font-size: clamp(1.0625rem, 1.25vw, 1.1875rem);
+
+.print-words {
+    font-size: 1.1875rem;
     line-height: 1.58;
     text-wrap: pretty;
 }
-.kimberley-last-tag {
+.print-title {
     margin: 0 0 0.45em;
-    font-size: clamp(1.0625rem, 1.9vw, 1.625rem);
+    font-size: 1.625rem;
     font-weight: 460;
     letter-spacing: -0.028em;
     line-height: 1.25;
 }
-.kimberley-last-line {
+.print-line {
     display: block;
     overflow: clip;
     white-space: nowrap;
     padding-bottom: 0.16em;
     margin-bottom: -0.16em;
 }
-.kimberley-last-rise {
+.print-rise {
     display: block;
-    translate: 0 calc((1 - var(--kimberley-tell, 1)) * 140%);
+    translate: 0 calc((1 - var(--tell, 1)) * 140%);
 }
-.kimberley-last-words p {
+.print-words p {
     margin: 0 0 1.1em;
-    color: var(--kimberley-ink);
-    opacity: var(--kimberley-tale, 1);
-    translate: 0 calc((1 - var(--kimberley-tale, 1)) * 1.5rem);
+    color: var(--ink);
+    opacity: var(--tale, 1);
+    translate: 0 calc((1 - var(--tale, 1)) * 1.5rem);
 }
-.kimberley-last-words p:last-of-type {
+.print-words p:last-of-type {
     margin-bottom: 0;
 }
+
 @media (max-aspect-ratio: 11 / 10) {
-    .kimberley-panel-two {
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-rows: auto auto auto;
-        align-content: center;
-        row-gap: clamp(1.5rem, 4svh, 3rem);
+    .chapters {
+        top: auto;
+        bottom: calc(0.875rem + env(safe-area-inset-bottom));
+        gap: 0.1875rem;
+        padding: 0.375rem;
+        background: color-mix(in srgb, var(--paper) 86%, transparent);
     }
-    .kimberley-lead,
-    .kimberley-lead-shot,
-    .kimberley-lead-tail {
+    .chapters a {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+    .chapters span {
+        top: auto;
+        bottom: calc(100% + 0.5rem);
+    }
+
+    .today-track,
+    .cases-track,
+    .print-track,
+    .sampo-track,
+    .studio-track,
+    .embed-track,
+    .thanks-track,
+    .js .cases-track,
+    .js .print-track,
+    .js .sampo-track,
+    .js .studio-track,
+    .js .embed-track,
+    .js .thanks-track {
+        height: auto;
+        margin-top: 0;
+    }
+
+    .today-stage,
+    .cases-stage,
+    .print-stage,
+    .sampo-stage,
+    .studio-stage,
+    .embed-stage,
+    .thanks-stage,
+    .panel {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        align-content: center;
+        justify-items: stretch;
+        height: auto;
+        min-height: 100svh;
+        gap: clamp(1rem, 3svh, 1.75rem);
+        padding: 4.5rem 1.5rem calc(5.5rem + env(safe-area-inset-bottom));
+    }
+    .js .today-stage,
+    .js .cases-stage,
+    .js .print-stage,
+    .js .sampo-stage,
+    .js .studio-stage,
+    .js .embed-stage,
+    .js .thanks-stage {
+        clip-path: none;
+        translate: none;
+    }
+
+    .craft-line,
+    .youth-line,
+    .print-line,
+    .sampo-line,
+    .statement-line {
+        white-space: normal;
+        overflow: visible;
+    }
+    .craft-ruled::after,
+    .amp-pen {
+        display: none;
+    }
+    .youth,
+    .tutorial,
+    .today-copy,
+    .cases-words,
+    .sampo-words,
+    .brochure,
+    .print-words,
+    .embed-words,
+    .thanks-words,
+    .studio-copy,
+    .statement,
+    .print-rise,
+    .youth-rise {
+        translate: none;
+        opacity: 1;
+        scale: 1;
+        rotate: none;
+    }
+
+    .craft-title {
+        font-size: 2.5rem;
+        font-weight: 300;
+        letter-spacing: -0.028em;
+        line-height: 1.06;
+    }
+    .thanks-word {
+        font-size: 2.5rem;
+        line-height: 1.06;
+    }
+    .statement {
+        font-size: 1.875rem;
+        line-height: 1.16;
+    }
+    .youth-title,
+    .tutorial-title,
+    .today-title,
+    .today-copy h2,
+    .sampo-title,
+    .studio-tag,
+    .embed-title {
+        font-size: 1.75rem;
+        line-height: 1.14;
+        margin-bottom: 0.7em;
+    }
+    .case-tag,
+    .print-title {
+        font-size: 1.25rem;
+        line-height: 1.24;
+    }
+    .youth-copy,
+    .tutorial-copy,
+    .cases-words,
+    .print-words,
+    .studio-words,
+    .embed-words,
+    .sampo-words,
+    .thanks-links,
+    .case-copy:first-of-type p,
+    .thanks-name {
+        font-size: 1.0625rem;
+        line-height: 1.55;
+    }
+    .youth,
+    .youth-copy,
+    .youth-tail,
+    .today-words,
+    .cases-words,
+    .print-words,
+    .footnote {
+        width: auto;
+        max-width: none;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .js .today-shot,
+    .js .today-copy,
+    .js .case-copy,
+    .statement-char {
+        visibility: visible;
+    }
+    .today-stage::before {
+        display: none;
+    }
+    .js .embed-frame,
+    .js .studio-film-two,
+    .js .studio-film-three,
+    .js .case-film {
+        clip-path: none;
+    }
+    .embed-live {
+        display: none;
+    }
+    .embed-shot {
+        opacity: 1;
+    }
+    .thanks-shot {
+        opacity: 1;
+        scale: 1;
+    }
+    .statement {
+        position: relative;
+        inset: auto;
+        padding-inline: 0;
+        background: none;
+    }
+    .brochure-pages,
+    .print-shot,
+    .embed-frame {
+        width: 100%;
+        max-width: none;
+        max-height: none;
+    }
+    .print-shot {
+        height: auto;
+    }
+
+    .hero-tagline {
+        top: 7.75rem;
+        bottom: auto;
+        font-size: 1rem;
+        font-weight: 400;
+        letter-spacing: 0.04em;
+        text-align: center;
+        color: var(--paper);
+        mix-blend-mode: normal;
+    }
+    .panel-youth,
+    .panel-tutorial {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: none;
+        column-gap: 0;
+    }
+    .youth,
+    .youth-photo,
+    .youth-tail,
+    .tutorial,
+    .tutorial-figure {
         grid-area: auto;
     }
-    .kimberley-lead-shot {
+    .youth-photo {
         justify-self: center;
-        width: clamp(150px, 40vw, 240px);
+        width: 9.5rem;
     }
-    .kimberley-lead-tail {
-        justify-self: start;
-        margin-bottom: 0;
+
+    .cases-reel,
+    .cases-words,
+    .studio-reel,
+    .studio-words {
+        display: contents;
     }
-}
-@media (max-aspect-ratio: 11 / 10) {
-    .kimberley-panel-mid {
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-rows: auto auto auto;
+    .case-film,
+    .studio-film,
+    .today-shot,
+    .thanks-shot,
+    .statement,
+    .case-copy,
+    .studio-copy {
+        position: relative;
+        inset: auto;
+        grid-area: auto;
+        width: 100%;
+        height: 100%;
+        translate: none;
+        scale: 1;
     }
-    .kimberley-mid-reel { grid-area: auto; }
-    .kimberley-mid { grid-area: auto; width: 100%; }
+    .case-film,
+    .studio-film,
+    .today-shot,
+    .thanks-shot {
+        object-fit: cover;
+        align-self: stretch;
+    }
+    .case-copy,
+    .studio-copy,
+    .today-copy {
+        align-self: center;
+    }
+
+    .today-stage {
+        grid-template-rows: 42svh 58svh 100svh;
+        row-gap: 0;
+        padding: 0;
+    }
+    .today-shot { grid-row: 1; }
+    .today-shot-two { grid-row: 3; }
+    .today-words { grid-row: 2; padding: 0 1.5rem; }
+
+    .cases-stage {
+        grid-template-rows: 100svh repeat(3, 42svh 58svh);
+        row-gap: 0;
+        padding: 0;
+    }
+    .case-copy:nth-of-type(1) { grid-row: 1; padding: 0 1.5rem; }
+    .case-film:nth-of-type(1) { grid-row: 2; }
+    .case-copy:nth-of-type(2) { grid-row: 3; padding: 0 1.5rem; }
+    .case-film:nth-of-type(2) { grid-row: 4; }
+    .case-copy:nth-of-type(3) { grid-row: 5; padding: 0 1.5rem; }
+    .case-film:nth-of-type(3) { grid-row: 6; }
+    .case-copy:nth-of-type(4) { grid-row: 7; padding: 0 1.5rem; }
+
+    .studio-stage {
+        grid-template-rows: 100svh 42svh 58svh 100svh 42svh 58svh;
+        row-gap: 0;
+        padding: 0;
+    }
+    .statement { grid-row: 1; align-self: center; padding: 0 1.5rem; }
+    .studio-film:nth-of-type(1) { grid-row: 2; }
+    .studio-copy:nth-of-type(1) { grid-row: 3; padding: 0 1.5rem; }
+    .studio-film:nth-of-type(2) { grid-row: 4; }
+    .studio-film:nth-of-type(3) { grid-row: 5; }
+    .studio-copy:nth-of-type(2) { grid-row: 6; padding: 0 1.5rem; }
+
+    .print-stage {
+        grid-template-rows: 55svh 45svh;
+        row-gap: 0;
+        padding: 0;
+    }
+    .print-words { grid-row: 1; align-self: center; padding: 0 1.5rem; }
+    .print-shot { grid-row: 2; align-self: center; }
+
+    .sampo-stage {
+        grid-template-rows: 50svh 50svh;
+        row-gap: 0;
+        padding: 0;
+    }
+    .sampo-words { grid-row: 1; align-self: center; padding: 0 1.5rem; }
+    .brochure { grid-row: 2; align-self: center; }
+
+    .embed-stage {
+        grid-template-rows: 45svh 55svh;
+        row-gap: 0;
+        padding: 0;
+    }
+    .embed-words { grid-row: 1; align-self: center; padding: 0 1.5rem; }
+    .embed-frame { grid-row: 2; align-self: center; height: auto; }
+
+    .thanks-stage {
+        grid-template-rows: 100svh 100svh;
+        row-gap: 0;
+        padding: 0;
+    }
+    .thanks-shot { grid-row: 1; }
+    .thanks-words { grid-row: 2; align-self: center; padding: 0 1.5rem; }
 }
