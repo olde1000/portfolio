@@ -1,0 +1,23 @@
+# Shared hosting serves .mp4 and .woff2 as octet-stream by default, which makes Safari
+# refuse the film and the browser refuse the font.
+AddType video/mp4 .mp4
+AddType font/woff2 .woff2
+AddType text/javascript .js
+
+# Filenames are not hashed yet, so the document stays short-lived and only the assets
+# that never change in place are kept for a year.
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType text/css "access plus 1 hour"
+    ExpiresByType text/javascript "access plus 1 hour"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType video/mp4 "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+</IfModule>
+
+# Text only: woff2, mp4 and jpeg are already compressed and deflating them costs CPU for
+# nothing.
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript image/svg+xml
+</IfModule>
