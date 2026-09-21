@@ -1,7 +1,4 @@
 .DS_Store
-node_modules/
-dist/
-
 HERO.mov
 B&O.mp4
 *.mov

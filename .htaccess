@@ -1,6 +1,7 @@
 # Shared hosting serves .mp4 and .woff2 as octet-stream by default, which makes Safari
 # refuse the film and the browser refuse the font.
 AddType video/mp4 .mp4
+AddType image/webp .webp
 AddType font/woff2 .woff2
 AddType text/javascript .js
 
@@ -14,6 +15,7 @@ AddType text/javascript .js
     ExpiresByType font/woff2 "access plus 1 year"
     ExpiresByType video/mp4 "access plus 1 year"
     ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
 </IfModule>
 
 # Text only: woff2, mp4 and jpeg are already compressed and deflating them costs CPU for
