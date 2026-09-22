@@ -1,9 +1,11 @@
 .DS_Store
-HERO.mov
-B&O.mp4
+.vscode/
+
 *.mov
 *.MOV
 *.mxf
 *.MXF
-*.ARW
 *.arw
+*.ARW
+
+B&O.mp4
